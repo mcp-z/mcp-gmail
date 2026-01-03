@@ -15,7 +15,10 @@ const CategorySchema = z.object({
   description: z.string().describe('Description of what emails belong in this category'),
 });
 
-const inputSchema = z.object({});
+/**
+ * Input schema for the categories-list tool (currently empty as this tool takes no parameters).
+ */
+export const inputSchema = z.object({});
 
 // Success branch schema
 const successBranchSchema = z.object({
@@ -34,10 +37,13 @@ const config = {
   }),
 } as const;
 
+/**
+ * Input parameters for the categories-list tool.
+ */
 export type Input = z.infer<typeof inputSchema>;
 export type Output = z.infer<typeof outputSchema>;
 
-async function handler(_args: Input, extra: EnrichedExtra) {
+async function handler(_: Input, extra: EnrichedExtra) {
   const logger = extra.logger;
   logger.info('gmail.categories.list called');
 

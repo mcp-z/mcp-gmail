@@ -5,6 +5,11 @@ import type { ServerConfig } from './types.ts';
 
 export { GOOGLE_SCOPE } from './constants.ts';
 export * as mcp from './mcp/index.ts';
+// Export types and schemas for documentation
+export type { Input as CategoriesListInput } from './mcp/tools/categories-list.ts';
+export { inputSchema as CategoriesListInputSchema } from './mcp/tools/categories-list.ts';
+export type { Input as LabelsListInput } from './mcp/tools/labels-list.ts';
+export { inputSchema as LabelsListInputSchema } from './mcp/tools/labels-list.ts';
 export * as schemas from './schemas/index.ts';
 export * as setup from './setup/index.ts';
 export * from './types.ts';

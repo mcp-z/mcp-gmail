@@ -2,7 +2,7 @@ import type { AuthContext, EnrichedExtra } from '@mcp-z/oauth-google';
 import type { AnySchema, SchemaOutput } from '@modelcontextprotocol/sdk/server/zod-compat.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import pino from 'pino';
-import type { StorageContext, StorageExtra } from '../../src/types.js';
+import type { StorageContext, StorageExtra } from '../../src/types.ts';
 
 /**
  * Typed handler signature for test files

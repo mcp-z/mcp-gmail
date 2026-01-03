@@ -8,8 +8,8 @@ import type { ToolModule } from '@mcp-z/server';
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { google } from 'googleapis';
 import { z } from 'zod';
-import { extractEmails } from '../../email/parsing/headers-utils.js';
-import { b64url } from '../../lib/base64-encoding.js';
+import { extractEmails } from '../../email/parsing/headers-utils.ts';
+import { b64url } from '../../lib/base64-encoding.ts';
 
 const inputSchema = z.object({
   id: z.coerce.string().trim().min(1).describe('Gmail message ID to reply to'),

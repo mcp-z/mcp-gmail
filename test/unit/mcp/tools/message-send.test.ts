@@ -2,11 +2,11 @@ import type { TypedToolResult } from '@mcp-z/server';
 import assert from 'assert';
 import type { gmail_v1 } from 'googleapis';
 import { google } from 'googleapis';
-import createTool, { type Input, type Output } from '../../../../src/mcp/tools/message-send.js';
-import type { Logger } from '../../../../src/types.js';
-import { createExtra, type TypedHandler } from '../../../lib/create-extra.js';
-import createMiddlewareContext from '../../../lib/create-middleware-context.js';
-import { deleteTestMessage } from '../../../lib/message-helpers.js';
+import createTool, { type Input, type Output } from '../../../../src/mcp/tools/message-send.ts';
+import type { Logger } from '../../../../src/types.ts';
+import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
+import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
+import { deleteTestMessage } from '../../../lib/message-helpers.ts';
 
 describe('Gmail message send tool (integration)', () => {
   let logger: Logger;

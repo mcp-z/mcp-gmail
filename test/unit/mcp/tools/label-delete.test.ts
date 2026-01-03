@@ -1,12 +1,12 @@
 import assert from 'assert';
 import type { gmail_v1 } from 'googleapis';
 import { google } from 'googleapis';
-import createTool, { type Input, type Output } from '../../../../src/mcp/tools/label-delete.js';
-import type { Logger } from '../../../../src/types.js';
-import { createExtra, type TypedHandler } from '../../../lib/create-extra.js';
-import createMiddlewareContext from '../../../lib/create-middleware-context.js';
-import { createTestLabel, deleteTestLabel, labelExists } from '../../../lib/label-helpers.js';
-import waitForLabel from '../../../lib/wait-for-label.js';
+import createTool, { type Input, type Output } from '../../../../src/mcp/tools/label-delete.ts';
+import type { Logger } from '../../../../src/types.ts';
+import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
+import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
+import { createTestLabel, deleteTestLabel, labelExists } from '../../../lib/label-helpers.ts';
+import waitForLabel from '../../../lib/wait-for-label.ts';
 
 describe('gmail-label-delete', () => {
   // Shared context and Gmail client for all tests

@@ -7,7 +7,7 @@ import type { ToolModule } from '@mcp-z/server';
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { google } from 'googleapis';
 import { z } from 'zod';
-import { ensureLabelId } from '../../labels/gmail-labels.js';
+import { ensureLabelId } from '../../labels/gmail-labels.ts';
 
 const inputSchema = z.object({
   id: z.coerce.string().trim().min(1).describe('Gmail message ID to add label to'),

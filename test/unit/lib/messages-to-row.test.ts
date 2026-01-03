@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { filterClientSide, type GmailMessage, toRowFromGmail } from '../../../src/lib/messages-to-row.js';
+import { filterClientSide, type GmailMessage, toRowFromGmail } from '../../../src/lib/messages-to-row.ts';
 
 // --- Date normalization + address formatting ---------------------------------
 it('toRowFromGmail: normalizes Date header to ISO8601 UTC', () => {

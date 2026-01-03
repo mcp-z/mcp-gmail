@@ -2,12 +2,12 @@ import { type CallToolResult, McpError } from '@modelcontextprotocol/sdk/types.j
 import assert from 'assert';
 import type { gmail_v1 } from 'googleapis';
 import { google } from 'googleapis';
-import createTool, { type Input, type Output } from '../../../../src/mcp/tools/message-get.js';
-import type { Logger } from '../../../../src/types.js';
-import { createExtra, type TypedHandler } from '../../../lib/create-extra.js';
-import createMiddlewareContext from '../../../lib/create-middleware-context.js';
-import { createTestMessage, deleteTestMessage } from '../../../lib/message-helpers.js';
-import waitForMessage from '../../../lib/wait-for-message.js';
+import createTool, { type Input, type Output } from '../../../../src/mcp/tools/message-get.ts';
+import type { Logger } from '../../../../src/types.ts';
+import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
+import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
+import { createTestMessage, deleteTestMessage } from '../../../lib/message-helpers.ts';
+import waitForMessage from '../../../lib/wait-for-message.ts';
 
 describe('gmail-message-get tests', () => {
   // Local message pool to reduce API calls - QUALITY.md compliant local-first solution

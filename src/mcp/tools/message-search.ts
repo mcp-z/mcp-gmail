@@ -11,9 +11,9 @@ import { createFieldsSchema, createPaginationSchema, createShapeSchema, filterFi
 import { type gmail_v1, google } from 'googleapis';
 import { z } from 'zod';
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../constants.ts';
-import { extractBodyFromPayload } from '../../email/parsing/html-processing.js';
-import { executeQuery as executeGmailQuery } from '../../email/querying/execute-query.js';
-import { GmailQuerySchema } from '../../schemas/gmail-query-schema.js';
+import { extractBodyFromPayload } from '../../email/parsing/html-processing.ts';
+import { executeQuery as executeGmailQuery } from '../../email/querying/execute-query.ts';
+import { GmailQuerySchema } from '../../schemas/gmail-query-schema.ts';
 
 const inputSchema = z.object({
   query: GmailQuerySchema.optional().describe('Structured query object for filtering messages. Use query-syntax prompt for reference.'),

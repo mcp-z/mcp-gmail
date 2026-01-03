@@ -1,12 +1,12 @@
 import assert from 'assert';
 import type { gmail_v1 } from 'googleapis';
 import { google } from 'googleapis';
-import createTool, { type Input } from '../../../../src/mcp/tools/message-respond.js';
-import type { Logger } from '../../../../src/types.js';
-import { createExtra, type TypedHandler } from '../../../lib/create-extra.js';
-import createMiddlewareContext from '../../../lib/create-middleware-context.js';
-import { createTestMessage, deleteTestMessage } from '../../../lib/message-helpers.js';
-import waitForMessage from '../../../lib/wait-for-message.js';
+import createTool, { type Input } from '../../../../src/mcp/tools/message-respond.ts';
+import type { Logger } from '../../../../src/types.ts';
+import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
+import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
+import { createTestMessage, deleteTestMessage } from '../../../lib/message-helpers.ts';
+import waitForMessage from '../../../lib/wait-for-message.ts';
 
 describe('message-respond tool', () => {
   // Shared instances for all tests

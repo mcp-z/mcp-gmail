@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { toGmailQuery } from '../../../../src/email/querying/query-builder.js';
+import { toGmailQuery } from '../../../../src/email/querying/query-builder.ts';
 
 describe('toGmailQuery - basic field queries', () => {
   it('handles from field (single value)', () => {

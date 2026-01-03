@@ -4,10 +4,10 @@ import assert from 'assert';
 import { existsSync } from 'fs';
 import { mkdir, readFile, rm } from 'fs/promises';
 import * as path from 'path';
-import createTool, { type Input, type Output } from '../../../../src/mcp/tools/messages-export-csv.js';
-import type { Logger, StorageExtra } from '../../../../src/types.js';
-import { createExtra, type TypedHandler } from '../../../lib/create-extra.js';
-import createMiddlewareContext from '../../../lib/create-middleware-context.js';
+import createTool, { type Input, type Output } from '../../../../src/mcp/tools/messages-export-csv.ts';
+import type { Logger, StorageExtra } from '../../../../src/types.ts';
+import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
+import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
 
 describe('Gmail messages export CSV tool (directory creation)', () => {
   let logger: Logger;

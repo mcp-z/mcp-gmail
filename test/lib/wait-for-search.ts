@@ -1,6 +1,6 @@
 import { setTimeout as delay } from 'timers/promises';
-import { toGmailQuery } from '../../src/email/querying/query-builder.js';
-import type { GmailQuery } from '../../src/schemas/gmail-query-schema.js';
+import { toGmailQuery } from '../../src/email/querying/query-builder.ts';
+import type { GmailQuery } from '../../src/schemas/gmail-query-schema.ts';
 
 type GmailClient = {
   users: {

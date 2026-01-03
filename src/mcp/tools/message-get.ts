@@ -8,8 +8,8 @@ import { createFieldsSchema, filterFields, parseFields, type ToolModule } from '
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { type gmail_v1, google } from 'googleapis';
 import { z } from 'zod';
-import { extractBodyFromPayload, extractEmails, extractFrom } from '../../email/parsing/message-extraction.js';
-import { toIsoUtc } from '../../lib/date-conversion.js';
+import { extractBodyFromPayload, extractEmails, extractFrom } from '../../email/parsing/message-extraction.ts';
+import { toIsoUtc } from '../../lib/date-conversion.ts';
 
 const inputSchema = z.object({
   id: z.coerce.string().trim().min(1).describe('Gmail message ID to retrieve'),

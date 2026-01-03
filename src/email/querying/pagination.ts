@@ -1,7 +1,7 @@
 /** Gmail pagination helpers for single-page operations. */
 
 import type { gmail_v1 } from 'googleapis';
-import type { Logger } from '../../types.js';
+import type { Logger } from '../../types.ts';
 
 export interface SinglePageResult {
   readonly messages: gmail_v1.Schema$Message[];

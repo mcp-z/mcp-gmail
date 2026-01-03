@@ -1,5 +1,5 @@
 import type { gmail_v1 } from 'googleapis';
-import type { Logger } from '../../src/types.js';
+import type { Logger } from '../../src/types.ts';
 // Helpers operate on a provided Gmail client instance
 
 export interface CreateTestMessageOptions {

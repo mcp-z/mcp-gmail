@@ -1,4 +1,4 @@
-import type { GmailQuery as QueryNode } from '../../schemas/gmail-query-schema.js';
+import type { GmailQuery as QueryNode } from '../../schemas/gmail-query-schema.ts';
 
 /**
  * Field operator interface for query filters

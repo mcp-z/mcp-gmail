@@ -2,14 +2,14 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import assert from 'assert';
 import type { gmail_v1 } from 'googleapis';
 import { google } from 'googleapis';
-import createTool, { type Input, type Output } from '../../../../src/mcp/tools/label-add.js';
-import type { Logger } from '../../../../src/types.js';
-import { createExtra, type TypedHandler } from '../../../lib/create-extra.js';
-import createMiddlewareContext from '../../../lib/create-middleware-context.js';
-import { deleteTestLabel } from '../../../lib/label-helpers.js';
-import { createTestMessage, deleteTestMessage } from '../../../lib/message-helpers.js';
-import waitForLabel from '../../../lib/wait-for-label.js';
-import waitForMessage from '../../../lib/wait-for-message.js';
+import createTool, { type Input, type Output } from '../../../../src/mcp/tools/label-add.ts';
+import type { Logger } from '../../../../src/types.ts';
+import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
+import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
+import { deleteTestLabel } from '../../../lib/label-helpers.ts';
+import { createTestMessage, deleteTestMessage } from '../../../lib/message-helpers.ts';
+import waitForLabel from '../../../lib/wait-for-label.ts';
+import waitForMessage from '../../../lib/wait-for-message.ts';
 
 describe('label-add tool', () => {
   // Shared instances for all tests

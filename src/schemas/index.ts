@@ -1,1 +1,1 @@
-export * from './gmail-query-schema.js';
+export * from './gmail-query-schema.ts';

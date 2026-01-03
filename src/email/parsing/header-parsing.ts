@@ -1,1 +1,1 @@
-export { extractEmails, extractFrom } from './headers-utils.js';
+export { extractEmails, extractFrom } from './headers-utils.ts';

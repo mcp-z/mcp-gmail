@@ -8,8 +8,8 @@ import type { ToolModule } from '@mcp-z/server';
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { google } from 'googleapis';
 import { z } from 'zod';
-import { buildRfc822FromArgs } from '../../email/composition/rfc822-builder.js';
-import { b64url } from '../../lib/base64-encoding.js';
+import { buildRfc822FromArgs } from '../../email/composition/rfc822-builder.ts';
+import { b64url } from '../../lib/base64-encoding.ts';
 
 const inputSchema = z.object({
   to: createEmailRecipientsSchema('to', true),

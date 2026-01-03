@@ -1,9 +1,9 @@
 import type { TypedToolResult } from '@mcp-z/server';
 import assert from 'assert';
-import createTool, { type Input, type Output } from '../../../../src/mcp/tools/labels-list.js';
-import type { Logger } from '../../../../src/types.js';
-import { createExtra, type TypedHandler } from '../../../lib/create-extra.js';
-import createMiddlewareContext from '../../../lib/create-middleware-context.js';
+import createTool, { type Input, type Output } from '../../../../src/mcp/tools/labels-list.ts';
+import type { Logger } from '../../../../src/types.ts';
+import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
+import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
 
 describe('Gmail labels list tool', () => {
   // Shared instance for all tests

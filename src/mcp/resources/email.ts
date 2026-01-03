@@ -4,8 +4,8 @@ import { ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.js';
 import type { ReadResourceResult, ServerNotification, ServerRequest } from '@modelcontextprotocol/sdk/types.js';
 import { type gmail_v1, google } from 'googleapis';
-import { extractEmails, extractFrom } from '../../email/parsing/message-extraction.js';
-import { toIsoUtc } from '../../lib/date-conversion.js';
+import { extractEmails, extractFrom } from '../../email/parsing/message-extraction.ts';
+import { toIsoUtc } from '../../lib/date-conversion.ts';
 
 export default function createResource() {
   const template = new ResourceTemplate('gmail://messages/{id}', {

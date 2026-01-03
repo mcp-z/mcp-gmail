@@ -1,8 +1,8 @@
 import type { gmail_v1 } from 'googleapis';
-import type { GmailQuery as QueryNode } from '../../schemas/gmail-query-schema.js';
-import type { Logger } from '../../types.js';
-import { type FetchMessagesPageParams, fetchMessagesPage } from './pagination.js';
-import { toGmailQuery } from './query-builder.js';
+import type { GmailQuery as QueryNode } from '../../schemas/gmail-query-schema.ts';
+import type { Logger } from '../../types.ts';
+import { type FetchMessagesPageParams, fetchMessagesPage } from './pagination.ts';
+import { toGmailQuery } from './query-builder.ts';
 
 export interface GmailSearchOptions {
   readonly query?: QueryNode;

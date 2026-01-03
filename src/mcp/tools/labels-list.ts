@@ -16,7 +16,10 @@ const LabelSchema = z.object({
   visibility: z.enum(['labelShow', 'labelHide', 'labelShowIfUnread']).describe('Label visibility in Gmail UI'),
 });
 
-const inputSchema = z.object({});
+/**
+ * Input schema for the labels-list tool (currently empty as this tool takes no parameters).
+ */
+export const inputSchema = z.object({});
 
 const successBranchSchema = z.object({
   type: z.literal('success'),
@@ -33,10 +36,13 @@ const config = {
   }),
 } as const;
 
+/**
+ * Input parameters for the labels-list tool.
+ */
 export type Input = z.infer<typeof inputSchema>;
 export type Output = z.infer<typeof outputSchema>;
 
-async function handler(_args: Input, extra: EnrichedExtra) {
+async function handler(_: Input, extra: EnrichedExtra) {
   const logger = extra.logger;
   logger.info('gmail.labels.list called');
 

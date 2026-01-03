@@ -80,7 +80,7 @@
     "csv-stringify": "^6.6.0",
     "express": "^5.0.0",
     "googleapis": "^169.0.0",
-    "keyv-registry": "^0.3.0",
+    "keyv-registry": "^0.4.0",
     "module-root-sync": "^2.0.0",
     "node-html-parser": "^7.0.1",
     "pino": "^10.0.0",

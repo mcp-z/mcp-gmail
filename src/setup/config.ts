@@ -120,8 +120,8 @@ export function parseConfig(args: string[], env: Record<string, string | undefin
     args,
     options: {
       'log-level': { type: 'string' },
-      'storage-dir': { type: 'string' },
       'base-url': { type: 'string' },
+      'storage-dir': { type: 'string' },
     },
     strict: false, // Allow other arguments
     allowPositionals: true,

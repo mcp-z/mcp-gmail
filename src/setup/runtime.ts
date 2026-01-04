@@ -66,7 +66,13 @@ export function createStorageLayer(storageContext: StorageContext): MiddlewareLa
   };
 }
 
-export function assertStorageConfig(config: ServerConfig) {
+export function validateStorageConfig(config: ServerConfig, logger: Logger) {
+  if (config.auth === 'dcr') {
+    if (config.resourceStoreUri) {
+      logger.warn('DCR mode does not support file storage; resourceStoreUri will be ignored.');
+    }
+    return;
+  }
   if (!config.resourceStoreUri) {
     throw new Error('gmail-messages-export-csv: Server configuration missing resourceStoreUri.');
   }
@@ -78,8 +84,8 @@ export function assertStorageConfig(config: ServerConfig) {
 export async function createDefaultRuntime(config: ServerConfig, overrides?: RuntimeOverrides): Promise<CommonRuntime> {
   if (config.auth === 'dcr' && config.transport.type !== 'http') throw new Error('DCR mode requires an HTTP transport');
 
-  assertStorageConfig(config);
   const logger = createLogger(config);
+  validateStorageConfig(config, logger);
   const tokenStore = await createTokenStore(config.baseDir);
   const baseUrl = config.baseUrl ?? (config.transport.type === 'http' && config.transport.port ? `http://localhost:${config.transport.port}` : undefined);
   const dcrStore = await createDcrStore(config.baseDir, config.auth === 'dcr');
@@ -92,7 +98,7 @@ export async function createDefaultRuntime(config: ServerConfig, overrides?: Run
       resources: Object.values(mcp.resourceFactories).map((factory) => factory()),
       prompts: Object.values(mcp.promptFactories).map((factory) => factory()),
     }));
-  const middlewareFactories = overrides?.middlewareFactories ?? [() => createAuthLayer(oauthAdapters.middleware), () => createLoggingLayer(logger), () => createStorageLayer({ resourceStoreUri: config.resourceStoreUri, baseUrl: config.baseUrl, transport: config.transport })];
+  const middlewareFactories = overrides?.middlewareFactories ?? [() => createAuthLayer(oauthAdapters.middleware), () => createLoggingLayer(logger), ...(config.auth === 'dcr' ? [] : [() => createStorageLayer({ resourceStoreUri: config.resourceStoreUri, baseUrl: config.baseUrl, transport: config.transport })])];
 
   return {
     deps,

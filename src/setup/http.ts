@@ -15,10 +15,14 @@ export async function createHTTPServer(config: ServerConfig, overrides?: Runtime
   if (!port) throw new Error('Port is required for HTTP transport');
 
   const tools = [...composed.tools, ...runtime.deps.oauthAdapters.accountTools];
+  const filteredTools =
+    config.auth === 'dcr'
+      ? tools.filter((tool) => tool.name !== 'messages-export-csv') // No file storage in DCR (public cloud responsibility)
+      : tools;
   const prompts = [...composed.prompts, ...runtime.deps.oauthAdapters.accountPrompts];
 
   const mcpServer = new McpServer({ name: config.name, version: config.version });
-  registerTools(mcpServer, tools);
+  registerTools(mcpServer, filteredTools);
   registerResources(mcpServer, composed.resources);
   registerPrompts(mcpServer, prompts);
 
@@ -31,8 +35,10 @@ export async function createHTTPServer(config: ServerConfig, overrides?: Runtime
     logger.info('Mounted loopback OAuth callback router');
   }
 
-  const fileRouter = createFileServingRouter({ resourceStoreUri: config.resourceStoreUri }, { contentType: 'text/csv', contentDisposition: 'attachment' });
-  app.use('/files', fileRouter);
+  if (config.auth !== 'dcr') {
+    const fileRouter = createFileServingRouter({ resourceStoreUri: config.resourceStoreUri }, { contentType: 'text/csv', contentDisposition: 'attachment' });
+    app.use('/files', fileRouter);
+  }
 
   if (runtime.deps.oauthAdapters.dcrRouter) {
     app.use('/', runtime.deps.oauthAdapters.dcrRouter);

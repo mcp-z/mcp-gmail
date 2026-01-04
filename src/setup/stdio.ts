@@ -11,10 +11,14 @@ export async function createStdioServer(config: ServerConfig, overrides?: Runtim
   const logger = runtime.deps.logger;
 
   const tools = [...composed.tools, ...runtime.deps.oauthAdapters.accountTools];
+  const filteredTools =
+    config.auth === 'dcr'
+      ? tools.filter((tool) => tool.name !== 'messages-export-csv') // No file storage in DCR (public cloud responsibility)
+      : tools;
   const prompts = [...composed.prompts, ...runtime.deps.oauthAdapters.accountPrompts];
 
   const mcpServer = new McpServer({ name: config.name, version: config.version });
-  registerTools(mcpServer, tools);
+  registerTools(mcpServer, filteredTools);
   registerResources(mcpServer, composed.resources);
   registerPrompts(mcpServer, prompts);
 

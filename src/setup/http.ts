@@ -31,7 +31,7 @@ export async function createHTTPServer(config: ServerConfig, overrides?: Runtime
     logger.info('Mounted loopback OAuth callback router');
   }
 
-  const fileRouter = createFileServingRouter({ storageDir: config.storageDir }, { contentType: 'text/csv', contentDisposition: 'attachment' });
+  const fileRouter = createFileServingRouter({ resourceStoreUri: config.resourceStoreUri }, { contentType: 'text/csv', contentDisposition: 'attachment' });
   app.use('/files', fileRouter);
 
   if (runtime.deps.oauthAdapters.dcrRouter) {

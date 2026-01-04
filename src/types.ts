@@ -16,7 +16,7 @@ export interface ServerConfig extends BaseServerConfig, OAuthConfig {
   repositoryUrl: string;
 
   // File serving configuration for CSV exports
-  storageDir: string;
+  resourceStoreUri: string;
   baseUrl?: string;
 
   // DCR configuration (when auth === 'dcr')
@@ -24,7 +24,7 @@ export interface ServerConfig extends BaseServerConfig, OAuthConfig {
 }
 
 export interface StorageContext {
-  storageDir: string;
+  resourceStoreUri: string;
   baseUrl?: string;
   transport: BaseServerConfig['transport'];
 }

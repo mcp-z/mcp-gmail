@@ -15,12 +15,12 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
   const tmpDir = path.join(process.cwd(), '.tmp');
   const testStorageDir = path.join(tmpDir, 'test-export-storage');
   const _storageContext = {
-    storageDir: testStorageDir,
+    resourceStoreUri: `file://${testStorageDir}`,
     baseUrl: 'http://localhost:3000',
     transport: { type: 'http', port: 3000 },
   } as const;
   const stdioStorageContext = {
-    storageDir: testStorageDir,
+    resourceStoreUri: `file://${testStorageDir}`,
     transport: { type: 'stdio' },
   } as const;
 
@@ -47,7 +47,7 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
   });
 
   afterEach(async () => {
-    // Clean up test storage directory after each test
+    // Clean up test resource store directory after each test
     try {
       await rm(testStorageDir, { recursive: true, force: true });
     } catch (_err) {
@@ -55,9 +55,9 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
     }
   });
 
-  it('creates storage directory if it does not exist', async () => {
+  it('creates resource store directory if it does not exist', async () => {
     // Ensure directory doesn't exist before test
-    assert.strictEqual(existsSync(testStorageDir), false, 'Storage directory should not exist initially');
+    assert.strictEqual(existsSync(testStorageDir), false, 'Resource store directory should not exist initially');
 
     // Export with minimal query (limit to 1 message for speed)
     const result = await handler(
@@ -77,7 +77,7 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
     if (structured?.type !== 'success') return;
 
     // Verify directory was created
-    assert.strictEqual(existsSync(testStorageDir), true, 'Storage directory should have been created');
+    assert.strictEqual(existsSync(testStorageDir), true, 'Resource store directory should have been created');
 
     // Verify CSV file exists
     const csvPath = path.join(testStorageDir, structured.filename);
@@ -88,10 +88,10 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
     assert.ok(csvContent.includes('id'), 'CSV should contain header with id column');
   });
 
-  it('works when storage directory already exists', async () => {
-    // Pre-create storage directory
+  it('works when resource store directory already exists', async () => {
+    // Pre-create resource store directory
     await mkdir(testStorageDir, { recursive: true });
-    assert.strictEqual(existsSync(testStorageDir), true, 'Storage directory should exist before test');
+    assert.strictEqual(existsSync(testStorageDir), true, 'Resource store directory should exist before test');
 
     // Export with minimal query
     const result = await handler(
@@ -120,10 +120,10 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
     const nestedStorageDir = path.join(tmpDir, 'deeply', 'nested', 'storage', 'dir');
 
     // Ensure nested path doesn't exist
-    assert.strictEqual(existsSync(nestedStorageDir), false, 'Nested storage directory should not exist initially');
+    assert.strictEqual(existsSync(nestedStorageDir), false, 'Nested resource store directory should not exist initially');
 
     const nestedStorageContext = {
-      storageDir: nestedStorageDir,
+      resourceStoreUri: `file://${nestedStorageDir}`,
       baseUrl: 'http://localhost:3000',
       transport: { type: 'http', port: 3000 },
     } as const;
@@ -156,7 +156,7 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
       if (structured?.type !== 'success') return;
 
       // Verify all parent directories were created
-      assert.strictEqual(existsSync(nestedStorageDir), true, 'Nested storage directory should have been created');
+      assert.strictEqual(existsSync(nestedStorageDir), true, 'Nested resource store directory should have been created');
       assert.strictEqual(existsSync(path.join(tmpDir, 'deeply')), true, 'Parent directory should exist');
       assert.strictEqual(existsSync(path.join(tmpDir, 'deeply', 'nested')), true, 'Grandparent directory should exist');
 
@@ -170,7 +170,7 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
   });
 
   it('exports valid CSV with headers and data', async () => {
-    // Pre-create storage directory
+    // Pre-create resource store directory
     await mkdir(testStorageDir, { recursive: true });
 
     // Export with minimal query
@@ -211,7 +211,7 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
   });
 
   it('returns absolute file:// URI for stdio transport', async () => {
-    // Pre-create storage directory
+    // Pre-create resource store directory
     await mkdir(testStorageDir, { recursive: true });
 
     // Export with minimal query
@@ -239,7 +239,7 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
     const uri = structured.uri;
     assert.ok(uri.startsWith('file://'), 'URI should start with file://');
     assert.ok(path.isAbsolute(uri.replace('file://', '')), 'URI should contain absolute path');
-    assert.ok(uri.includes(testStorageDir), 'URI should include storage directory path');
+    assert.ok(uri.includes(testStorageDir), 'URI should include resource store path');
     assert.ok(uri.includes(structured.filename), 'URI should include filename');
 
     // Verify file exists at the URI path

@@ -46,7 +46,7 @@ describe('createHTTPServer - transport initialization', () => {
       headless: true,
       logLevel: 'error',
       auth: 'loopback-oauth',
-      storageDir: path.join(testContextPath, 'files'),
+      resourceStoreUri: `file://${path.join(testContextPath, 'files')}`,
       repositoryUrl: 'https://github.com/mcp-z/mcp-gmail',
     };
 
@@ -70,7 +70,7 @@ describe('createHTTPServer - transport initialization', () => {
       headless: true,
       logLevel: 'error',
       auth: 'loopback-oauth',
-      storageDir: path.join(testContextPath, 'files'),
+      resourceStoreUri: `file://${path.join(testContextPath, 'files')}`,
       repositoryUrl: 'https://github.com/mcp-z/mcp-gmail',
     };
 
@@ -94,7 +94,7 @@ describe('createHTTPServer - transport initialization', () => {
       headless: true,
       logLevel: 'error',
       auth: 'loopback-oauth',
-      storageDir: path.join(testContextPath, 'files'),
+      resourceStoreUri: `file://${path.join(testContextPath, 'files')}`,
       repositoryUrl: 'https://github.com/mcp-z/mcp-gmail',
     };
 
@@ -117,7 +117,7 @@ describe('createHTTPServer - transport initialization', () => {
       headless: true,
       logLevel: 'error',
       auth: 'service-account',
-      storageDir: path.join(testContextPath, 'files'),
+      resourceStoreUri: `file://${path.join(testContextPath, 'files')}`,
       repositoryUrl: 'https://github.com/mcp-z/mcp-gmail',
       // Intentionally missing serviceAccountKeyFile
     };

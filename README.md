@@ -137,6 +137,7 @@ Example:
 ### DCR (self-hosted)
 
 HTTP only. Requires a public base URL.
+CSV export and `/files` are disabled in DCR mode; `resourceStoreUri` is ignored.
 
 ```json
 {

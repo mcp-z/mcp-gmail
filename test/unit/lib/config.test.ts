@@ -235,7 +235,7 @@ describe('parseConfig', () => {
       assert.ok(config.version);
       assert.ok(config.repositoryUrl);
       assert.ok(config.baseDir);
-      assert.ok(config.storageDir);
+      assert.ok(config.resourceStoreUri);
     });
 
     it('parses transport configuration', () => {

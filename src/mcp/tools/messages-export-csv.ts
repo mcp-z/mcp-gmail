@@ -83,7 +83,7 @@ export type Output = z.infer<typeof outputSchema>;
 async function handler({ query, maxItems, filename, contentType, excludeThreadHistory }: Input, extra: EnrichedExtra & StorageExtra) {
   const logger = extra.logger;
   const { storageContext } = extra;
-  const { transport, storageDir, baseUrl } = storageContext;
+  const { transport, resourceStoreUri, baseUrl } = storageContext;
 
   logger.info('gmail.messages.export-csv called', {
     query,
@@ -94,7 +94,7 @@ async function handler({ query, maxItems, filename, contentType, excludeThreadHi
 
   // Reserve file location for streaming write (creates directory, generates ID, formats filename)
   const reservation = await reserveFile(filename, {
-    storageDir,
+    resourceStoreUri,
   });
   const { storedName, fullPath } = reservation;
 
@@ -218,7 +218,7 @@ async function handler({ query, maxItems, filename, contentType, excludeThreadHi
 
     // Generate URI based on transport type (stdio: file://, HTTP: http://)
     const uri = getFileUri(storedName, transport, {
-      storageDir,
+      resourceStoreUri,
       ...(baseUrl && { baseUrl }),
       endpoint: '/files',
     });

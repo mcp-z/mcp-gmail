@@ -81,6 +81,9 @@ function mapCategoryToLabel(category: string): string {
 
 export function toGmailQuery(query: QueryNode, options: { dateSlash?: boolean } = {}) {
   const slashDates = options.dateSlash !== false;
+  if (query.rawGmailQuery) {
+    return { q: query.rawGmailQuery, filters: {} };
+  }
   const subjectIncludes: string[] = [];
   const bodyIncludes: string[] = [];
   const textIncludes: string[] = [];

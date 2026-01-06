@@ -15,7 +15,7 @@ import { z } from 'zod';
 import { DEFAULT_PAGE_SIZE } from '../../constants.ts';
 import { extractBodyFromPayload } from '../../email/parsing/html-processing.ts';
 import { executeQuery as executeGmailQuery } from '../../email/querying/execute-query.ts';
-import { GmailQuerySchema } from '../../schemas/gmail-query-schema.ts';
+import { GmailQueryParameterSchema } from '../../schemas/gmail-query-schema.ts';
 import type { StorageExtra } from '../../types.ts';
 
 const DEFAULT_MAX_ITEMS = 10000;
@@ -42,7 +42,7 @@ interface CsvRow {
 }
 
 const inputSchema = z.object({
-  query: GmailQuerySchema.optional().describe('Structured query object for filtering messages. Use query-syntax prompt for reference.'),
+  query: GmailQueryParameterSchema.optional().describe('Structured query object or JSON string for filtering messages. Use query-syntax prompt for reference and rawGmailQuery for Gmail syntax.'),
   maxItems: z.number().int().positive().max(MAX_EXPORT_ITEMS).default(DEFAULT_MAX_ITEMS).describe(`Maximum messages to export (default: ${DEFAULT_MAX_ITEMS}, max: ${MAX_EXPORT_ITEMS})`),
   filename: z.string().trim().min(1).default('gmail-messages.csv').describe('Output filename (default: gmail-messages.csv)'),
   contentType: EmailContentTypeSchema,

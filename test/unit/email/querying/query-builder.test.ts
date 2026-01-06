@@ -366,6 +366,15 @@ describe('toGmailQuery - query string normalization', () => {
   });
 });
 
+describe('toGmailQuery - raw Gmail query passthrough', () => {
+  it('returns raw Gmail syntax when rawGmailQuery is provided', () => {
+    const rawQuery = 'after:2025/01/01 is:starred';
+    const result = toGmailQuery({ rawGmailQuery: rawQuery });
+    assert.strictEqual(result.q, rawQuery);
+    assert.deepStrictEqual(result.filters, {});
+  });
+});
+
 describe('toGmailQuery - filters extraction', () => {
   it('extracts all field filters correctly', () => {
     const result = toGmailQuery({

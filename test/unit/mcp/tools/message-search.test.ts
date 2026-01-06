@@ -84,6 +84,64 @@ describe('gmail-message-search comprehensive pagination tests', () => {
     });
   });
 
+  describe('query input formats', () => {
+    let messageId: string | undefined;
+    let subject: string;
+    let body: string;
+
+    before(async () => {
+      subject = `Query-Format-Subject-${Date.now()}`;
+      body = `Query format body ${Date.now()}`;
+      messageId = await createTestMessage(client, { subject, body });
+      await waitForMessage(client, messageId, { interval: 200, timeout: 10000 });
+      await waitForSearch(client, { subject }, { expectedId: messageId, timeout: 10000 });
+    });
+
+    after(async () => {
+      if (messageId) {
+        await deleteTestMessage(client, messageId, logger);
+      }
+    });
+
+    async function assertFound(query: Input['query']) {
+      const result = await handler(
+        {
+          query,
+          pageSize: 5,
+          fields: 'id,subject',
+          shape: 'objects',
+          contentType: 'text',
+          excludeThreadHistory: false,
+        },
+        createExtra()
+      );
+
+      const branch = result.structuredContent?.result as Output | undefined;
+      assertObjectsShape(branch);
+      const found = branch.items.some((item: unknown) => {
+        const i = item as { id?: string };
+        return i.id === messageId;
+      });
+      assert.ok(found, 'should find the test message');
+    }
+
+    it('accepts structured query objects', async () => {
+      await assertFound({ subject });
+    });
+
+    it('accepts structured query JSON strings', async () => {
+      await assertFound(JSON.stringify({ subject }));
+    });
+
+    it('accepts rawGmailQuery objects', async () => {
+      await assertFound({ rawGmailQuery: `subject:"${subject}"` });
+    });
+
+    it('accepts rawGmailQuery JSON strings', async () => {
+      await assertFound(JSON.stringify({ rawGmailQuery: `subject:"${subject}"` }));
+    });
+  });
+
   describe('pagination flow tests', () => {
     it('comprehensive pagination workflow: first page → subsequent pages → last page', async () => {
       // Get first page to start workflow

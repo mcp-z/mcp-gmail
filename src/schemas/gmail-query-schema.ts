@@ -64,6 +64,34 @@ export const GmailQuerySchema = z.lazy(() =>
     .strict()
 ) as unknown as z.ZodType<GmailQuery>;
 
+export const GmailQueryParameterSchema = z.any().transform((value, ctx) => {
+  let parsed = value;
+  if (typeof value === 'string') {
+    try {
+      parsed = JSON.parse(value);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Invalid JSON';
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Query must be valid JSON. ${message}. Wrap Gmail syntax in {"rawGmailQuery":"<query>"} if needed.`,
+      });
+      return z.NEVER;
+    }
+  }
+
+  const validated = GmailQuerySchema.safeParse(parsed);
+  if (!validated.success) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `Invalid query JSON: ${validated.error.message}. Use {"rawGmailQuery":"<query>"} for Gmail syntax.`,
+    });
+    return z.NEVER;
+  }
+
+  return validated.data;
+}) as z.ZodType<GmailQuery>;
+export type GmailQueryParameter = z.infer<typeof GmailQueryParameterSchema>;
+
 export type GmailQuery = BaseEmailQueryFields & {
   $and?: GmailQuery[];
   $or?: GmailQuery[];

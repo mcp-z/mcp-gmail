@@ -15,7 +15,7 @@ import { z } from 'zod';
 import { DEFAULT_PAGE_SIZE } from '../../constants.ts';
 import { extractBodyFromPayload } from '../../email/parsing/html-processing.ts';
 import { executeQuery as executeGmailQuery } from '../../email/querying/execute-query.ts';
-import { GmailQueryParameterSchema } from '../../schemas/gmail-query-schema.ts';
+import { GmailQueryParameterSchema, parseGmailQueryParameter } from '../../schemas/gmail-query-schema.ts';
 import type { StorageExtra } from '../../types.ts';
 
 const DEFAULT_MAX_ITEMS = 10000;
@@ -85,13 +85,6 @@ async function handler({ query, maxItems, filename, contentType, excludeThreadHi
   const { storageContext } = extra;
   const { transport, resourceStoreUri, baseUrl } = storageContext;
 
-  logger.info('gmail.messages.export-csv called', {
-    query,
-    maxItems,
-    filename,
-    accountId: extra.authContext.accountId,
-  });
-
   // Reserve file location for streaming write (creates directory, generates ID, formats filename)
   const reservation = await reserveFile(filename, {
     resourceStoreUri,
@@ -101,6 +94,15 @@ async function handler({ query, maxItems, filename, contentType, excludeThreadHi
   logger.info('gmail.messages.export-csv starting streaming export', { path: fullPath, maxItems });
 
   try {
+    const parsedQuery = parseGmailQueryParameter(query);
+
+    logger.info('gmail.messages.export-csv called', {
+      query: parsedQuery,
+      maxItems,
+      filename,
+      accountId: extra.authContext.accountId,
+    });
+
     const gmail = google.gmail({ version: 'v1', auth: extra.authContext.auth });
 
     // Create CSV headers (all email fields)
@@ -125,7 +127,7 @@ async function handler({ query, maxItems, filename, contentType, excludeThreadHi
         items: CsvRow[];
         metadata?: { nextPageToken?: string };
       } = await executeGmailQuery(
-        query,
+        parsedQuery,
         {
           client: gmail,
           logger,

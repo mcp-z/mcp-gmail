@@ -64,33 +64,27 @@ export const GmailQuerySchema = z.lazy(() =>
     .strict()
 ) as unknown as z.ZodType<GmailQuery>;
 
-export const GmailQueryParameterSchema = z.any().transform((value, ctx) => {
-  let parsed = value;
-  if (typeof value === 'string') {
-    try {
-      parsed = JSON.parse(value);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Invalid JSON';
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `Query must be valid JSON. ${message}. Wrap Gmail syntax in {"rawGmailQuery":"<query>"} if needed.`,
-      });
-      return z.NEVER;
-    }
-  }
-
-  const validated = GmailQuerySchema.safeParse(parsed);
-  if (!validated.success) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: `Invalid query JSON: ${validated.error.message}. Use {"rawGmailQuery":"<query>"} for Gmail syntax.`,
-    });
-    return z.NEVER;
-  }
-
-  return validated.data;
-}) as z.ZodType<GmailQuery>;
+export const GmailQueryParameterSchema = z.union([GmailQuerySchema, z.string().min(1)]) as z.ZodType<GmailQuery | string>;
 export type GmailQueryParameter = z.infer<typeof GmailQueryParameterSchema>;
+
+export function parseGmailQueryParameter(input: GmailQuery | string | undefined): GmailQuery | undefined {
+  if (input === undefined) return undefined;
+  const raw = typeof input === 'string' ? safeJsonParse(input, 'rawGmailQuery') : input;
+  const validated = GmailQuerySchema.safeParse(raw);
+  if (!validated.success) {
+    throw new Error(`Invalid query JSON: ${validated.error.message}. Use {"rawGmailQuery":"<query>"} for Gmail syntax.`);
+  }
+  return validated.data;
+}
+
+function safeJsonParse(value: string, rawField: 'rawGmailQuery'): unknown {
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Invalid JSON';
+    throw new Error(`Query must be valid JSON. ${message}. Wrap Gmail syntax in {"${rawField}":"<query>"} if needed.`);
+  }
+}
 
 export type GmailQuery = BaseEmailQueryFields & {
   $and?: GmailQuery[];

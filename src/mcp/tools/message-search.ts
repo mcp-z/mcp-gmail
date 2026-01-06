@@ -13,7 +13,7 @@ import { z } from 'zod';
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../constants.ts';
 import { extractBodyFromPayload } from '../../email/parsing/html-processing.ts';
 import { executeQuery as executeGmailQuery } from '../../email/querying/execute-query.ts';
-import { GmailQueryParameterSchema } from '../../schemas/gmail-query-schema.ts';
+import { GmailQueryParameterSchema, parseGmailQueryParameter } from '../../schemas/gmail-query-schema.ts';
 
 const inputSchema = z.object({
   query: GmailQueryParameterSchema.optional().describe('Structured query object or JSON string for filtering messages. Use query-syntax prompt for reference and rawGmailQuery for Gmail syntax.'),
@@ -63,25 +63,26 @@ export type Output = z.infer<typeof outputSchema>;
 async function handler({ query, pageSize = DEFAULT_PAGE_SIZE, pageToken, fields, shape = 'arrays', contentType = 'text', excludeThreadHistory = false }: Input, extra: EnrichedExtra) {
   const logger = extra.logger;
 
-  const requestedFields = parseFields(fields, EMAIL_FIELDS);
-  const includeBody = requestedFields === 'all' || requestedFields.has('body');
-
-  logger.info('gmail.message.search called', {
-    query,
-    pageSize,
-    pageToken: pageToken ? '[provided]' : undefined,
-    fields,
-    includeBody,
-    accountId: extra.authContext.accountId, // Available from middleware
-  });
-
   try {
+    const parsedQuery = parseGmailQueryParameter(query);
+    const requestedFields = parseFields(fields, EMAIL_FIELDS);
+    const includeBody = requestedFields === 'all' || requestedFields.has('body');
+
+    logger.info('gmail.message.search called', {
+      query: parsedQuery,
+      pageSize,
+      pageToken: pageToken ? '[provided]' : undefined,
+      fields,
+      includeBody,
+      accountId: extra.authContext.accountId, // Available from middleware
+    });
+
     const gmail = google.gmail({ version: 'v1', auth: extra.authContext.auth });
 
     const started = Date.now();
 
     const exec = await executeGmailQuery(
-      query,
+      parsedQuery,
       {
         client: gmail,
         logger,

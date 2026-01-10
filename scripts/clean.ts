@@ -12,25 +12,23 @@
  *   node scripts/clean.ts --headless # Prints URL for CI/SSH environments
  */
 
+import { AuthRequiredError, listAccountIds } from '@mcp-z/oauth';
 import { LoopbackOAuthProvider } from '@mcp-z/oauth-google';
 import { google } from 'googleapis';
-import Keyv from 'keyv';
+import type { Keyv } from 'keyv';
 import { GOOGLE_SCOPE } from '../src/constants.ts';
+import createStore from '../src/lib/create-store.ts';
 import { createConfig } from '../src/setup/config.ts';
 
-const CHUNK_SIZE = 10; // Gmail API has stricter rate limits
+const CHUNK_SIZE = 20; // Gmail API has stricter rate limits
 const MAX_BATCH_SIZE = 10000; // Stop after this many messages to prevent runaway
 
 async function cleanMail(): Promise<void> {
   // Parse command line arguments
   const args = process.argv.slice(2);
   const isForce = args.includes('--force');
-  const isHeadless = args.includes('--headless');
 
   const config = createConfig();
-  // Create modified config for headless
-  const modifiedConfig = { ...config, headless: config.headless || isHeadless };
-
   console.log('📧 Gmail Mail Cleaner');
   console.log('');
 
@@ -43,25 +41,24 @@ async function cleanMail(): Promise<void> {
   }
   console.log('');
 
-  // Use in-memory store so tokens are not persisted
-  const tokenStore = new Keyv();
+  const tokenStore = await createStore<unknown>('file://.//.tokens/store.json');
+  const accountId = await resolveTestAccount(tokenStore, config.name);
 
   const auth = new LoopbackOAuthProvider({
     service: config.name,
     clientId: config.clientId,
     clientSecret: config.clientSecret,
     scope: GOOGLE_SCOPE,
-    headless: modifiedConfig.headless,
+    headless: true,
     logger: console,
-    tokenStore, // In-memory, not persistent
+    tokenStore,
   });
 
-  console.log('Starting OAuth flow...');
+  console.log('Using cached test account:', accountId);
   console.log('');
 
   try {
-    // Get fresh access token (always requests new since in-memory store)
-    const token = await auth.getAccessToken('temp-user');
+    const token = await auth.getAccessToken(accountId);
 
     console.log('✓ Authentication successful!');
     console.log('');
@@ -102,20 +99,13 @@ async function cleanMail(): Promise<void> {
       for (const message of messages) {
         if (message.id) {
           try {
-            const messageResponse = await gmail.users.messages.get({
-              userId: 'me',
-              id: message.id,
-              format: 'metadata',
-              metadataHeaders: ['subject'],
-            });
-
-            const headers = messageResponse.data.payload?.headers || [];
+            const headers = (message.payload?.headers || []) as Array<{ name: string; value?: string }>;
             const subjectHeader = headers.find((h) => h.name === 'Subject');
             const subject = subjectHeader?.value || '(No subject)';
 
             allMessages.push({
               id: message.id,
-              subject: subject,
+              subject,
             });
           } catch (_error) {
             // If we can't get message details, still include it
@@ -215,9 +205,30 @@ async function cleanMail(): Promise<void> {
       console.log(`❌ Failed to move ${totalFailure} messages`);
     }
   } catch (error) {
+    if (error instanceof AuthRequiredError) {
+      console.error('\n❌ Cleanup failed: no cached tokens available for Gmail.');
+      console.error('   Run `npm run test:setup` to generate tokens and try again.');
+      process.exit(1);
+    }
     console.error('\n❌ Cleanup failed:', error instanceof Error ? error.message : String(error));
     throw error;
   }
+}
+
+async function resolveTestAccount(tokenStore: Keyv, service: string): Promise<string> {
+  const accountIds = await listAccountIds(tokenStore, service);
+  if (accountIds.length === 0) {
+    throw new Error('No test account found. Run `npm run test:setup` to initialize Gmail credentials.');
+  }
+  if (accountIds.length > 1) {
+    throw new Error(`Multiple test accounts found for ${service} (${accountIds.length}). Please clean .tokens and rerun setup:\n  rm -rf .tokens\n  npm run test:setup`);
+  }
+  return (
+    accountIds[0] ??
+    (function () {
+      throw new Error('No account id available');
+    })()
+  );
 }
 
 // Run if executed directly

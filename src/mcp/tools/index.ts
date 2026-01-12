@@ -1,4 +1,5 @@
 export { default as categoriesList } from './categories-list.ts';
+export { default as draftCreate } from './draft-create.ts';
 export { default as labelAdd } from './label-add.ts';
 export { default as labelDelete } from './label-delete.ts';
 export { default as labelRemove } from './label-remove.ts';

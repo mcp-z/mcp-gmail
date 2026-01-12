@@ -1,7 +1,9 @@
 export { default as categoriesList } from './categories-list.ts';
 export { default as labelAdd } from './label-add.ts';
 export { default as labelDelete } from './label-delete.ts';
+export { default as labelRemove } from './label-remove.ts';
 export { default as labelsList } from './labels-list.ts';
+export { default as messageArchive } from './message-archive.ts';
 export { default as messageGet } from './message-get.ts';
 export { default as messageMarkRead } from './message-mark-read.ts';
 export { default as messageMoveToTrash } from './message-move-to-trash.ts';

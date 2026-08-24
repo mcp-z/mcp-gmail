@@ -51,12 +51,10 @@
     "./package.json": "./package.json"
   },
   "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
   "types": "./dist/esm/index.d.ts",
   "bin": "bin/server.js",
   "files": [
-    "dist",
-    "bin"
+    "dist"
   ],
   "scripts": {
     "build": "tsds validate",
@@ -79,10 +77,10 @@
     "cors": "^2.0.0",
     "csv-stringify": "^6.0.0",
     "express": "^5.0.0",
-    "googleapis": "^170.0.0",
+    "googleapis": "^174.0.1",
     "keyv-registry": "^1.0.0",
     "module-root-sync": "^2.0.0",
-    "node-html-parser": "^7.0.0",
+    "node-html-parser": "^9.0.1",
     "pino": "^10.0.0",
     "zod": "^4.0.0"
   },
@@ -91,7 +89,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.0.3",
+    "@types/node": "^26.2.0",
     "dotenv": "^17.2.3",
     "get-port": "^7.1.0",
     "keyv": "^5.0.0",
@@ -101,6 +99,12 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "allowScripts": {
+    "node-filename-to-dist-paths": true,
+    "node-semvers": true,
+    "node-version-use": true,
+    "thread-sleep-compat": true
   },
   "mcpName": "io.github.mcp-z/mcp-gmail",
   "tsds": {

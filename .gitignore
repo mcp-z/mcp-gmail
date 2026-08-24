@@ -12,8 +12,13 @@ docs/
 coverage
 coverage.lcov
 
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.*.example
+
 # Test files
-.env.test
 .tmp/
 .tokens/
 

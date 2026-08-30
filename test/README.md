@@ -10,7 +10,7 @@ Notes:
 - Tests run in the package context so Node will resolve `package.json` and dependencies correctly.
 - Live integration tests load credentials via Node's `--env-file`. Place them in `.env/test/gmail`.
 - Helpers used only for tests should live under `test/lib/` so they are executed within the package context.
-# Service‑backed unit tests — servers/mcp-gmail
+# Service‑backed unit tests: servers/mcp-gmail
 
 These examples exercise real Google APIs via the normal unit test runner using injected dependencies. Tests run unconditionally with credentials loaded from the repository `.env.test` by the package test script.
 
@@ -20,8 +20,8 @@ Prerequisites
 - Network access to Google APIs
 
 Environment variables (from `.env.test`)
-- GOOGLE_CLIENT_ID — OAuth client ID
-- GOOGLE_CLIENT_SECRET — OAuth client secret
+- GOOGLE_CLIENT_ID: OAuth client ID
+- GOOGLE_CLIENT_SECRET: OAuth client secret
 
 Note: Token storage location is automatically determined using zero-config pattern. Use the package helper
 `test/lib/create-middleware-context.ts` to obtain shared package-level tokens stored

@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as url from 'url';
 import { parseArgs } from 'util';
 
-// Kept dependency-free (fs/path/url/module-root-sync only) so `--version`/`--help`/`version`
+// Kept dependency-free (fs/path/url/module-root-sync only) so `--version`/`--help`
 // resolve nothing beyond Node startup: config.ts's parseConfig pulls in @mcp-z/oauth-google and
 // @mcp-z/server, which this path must not touch.
 const pkg = JSON.parse(fs.readFileSync(path.join(moduleRoot(url.fileURLToPath(import.meta.url)), 'package.json'), 'utf-8'));
@@ -30,9 +30,6 @@ Options:
   --resource-store-uri=<uri>    Resource store URI for CSV file storage (default: file://~/.mcp-z/mcp-gmail/files)
   --base-url=<url>       Base URL for HTTP file serving (optional)
 
-Commands:
-  version                Show version number
-
 Environment Variables:
   GOOGLE_CLIENT_ID       OAuth client ID (REQUIRED)
   GOOGLE_CLIENT_SECRET   OAuth client secret (optional)
@@ -47,12 +44,18 @@ Environment Variables:
   RESOURCE_STORE_URI            Resource store URI (optional, file://)
   BASE_URL               Default base URL for file serving (optional)
 
+Storage Backends:
+  TOKEN_STORE_URI and DCR_STORE_URI accept any keyv-registry protocol.
+  file:// (the default) and memory:// work out of the box. Any other backend
+  needs its adapter installed alongside this server:
+    npm install -g @keyv/redis
+    TOKEN_STORE_URI=redis://localhost:6379 mcp-gmail
+
 OAuth Scopes:
   openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://mail.google.com/
 
 Examples:
   mcp-gmail                           # Use default settings
-  mcp-gmail version                   # Print version number
   mcp-gmail --auth=service-account    # Use service account auth
   mcp-gmail --port=3000               # HTTP transport on port 3000
   mcp-gmail --resource-store-uri=file:///tmp/emails    # Custom resource store URI
@@ -65,21 +68,21 @@ export function readPkg(): { name: string; version: string; repository?: string 
 }
 
 /**
- * Handle --version/--help flags and the `version` subcommand before config parsing.
+ * Handle --version/--help flags before config parsing.
  * These must work without requiring any configuration or heavy dependency.
  */
 export function handleVersionHelp(args: string[]): { handled: boolean; output?: string } {
-  const { values, positionals } = parseArgs({
+  const { values } = parseArgs({
     args,
     options: {
-      version: { type: 'boolean' },
-      help: { type: 'boolean' },
+      version: { type: 'boolean', short: 'v' },
+      help: { type: 'boolean', short: 'h' },
     },
     strict: false,
     allowPositionals: true,
   });
 
-  if (values.version || positionals[0] === 'version') return { handled: true, output: pkg.version };
+  if (values.version) return { handled: true, output: pkg.version };
   if (values.help) return { handled: true, output: HELP_TEXT };
   return { handled: false };
 }

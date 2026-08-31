@@ -1,7 +1,6 @@
 # MCP Components: Unified Authentication Pattern
 
-Docs: https://mcp-z.github.io/mcp-gmail
-This directory contains MCP component implementations (tools, resources, prompts) for Gmail.
+Docs: https://mcp-z.github.io/mcp-gmail This directory contains MCP component implementations (tools, resources, prompts) for Gmail.
 
 ## Unified Middleware Pattern
 

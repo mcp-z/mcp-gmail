@@ -1,11 +1,12 @@
+import type { Logger } from '@mcp-z/mcp-gmail';
+import { mcp } from '@mcp-z/mcp-gmail';
 import type { TypedToolResult } from '@mcp-z/server';
 import { McpError } from '@modelcontextprotocol/sdk/types.js';
 import assert from 'assert';
 import type { gmail_v1 } from 'googleapis';
 import { google } from 'googleapis';
-import messageGetFactory, { type Output as MessageGetOutput } from '../../../../src/mcp/tools/message-get.ts';
-import createTool, { type Input, type Output } from '../../../../src/mcp/tools/message-search.ts';
-import type { Logger } from '../../../../src/types.ts';
+import type { Output as MessageGetOutput } from '../../../../src/mcp/tools/message-get.ts';
+import type { Input, Output } from '../../../../src/mcp/tools/message-search.ts';
 import { assertObjectsShape } from '../../../lib/assertions.ts';
 import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
 import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
@@ -32,7 +33,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
     logger = middlewareContext.logger;
     auth = middlewareContext.auth;
     const middleware = middlewareContext.middleware;
-    const tool = createTool();
+    const tool = mcp.toolFactories.messageSearch();
     const wrappedTool = middleware.withToolAuth(tool);
     handler = wrappedTool.handler;
     client = google.gmail({ version: 'v1', auth: auth });
@@ -703,7 +704,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
       // Use message-get handler for cross-tool consistency testing
       const middlewareContext = await createMiddlewareContext();
       const middleware = middlewareContext.middleware;
-      const messageGetTool = messageGetFactory();
+      const messageGetTool = mcp.toolFactories.messageGet();
       const wrappedMessageGetTool = middleware.withToolAuth(messageGetTool);
       const messageGetHandler = wrappedMessageGetTool.handler;
       const createdIds: string[] = [];
@@ -826,7 +827,7 @@ describe('gmail-message-search comprehensive query patterns', () => {
     logger = middlewareContext.logger;
     auth = middlewareContext.auth;
     const middleware = middlewareContext.middleware;
-    const tool = createTool();
+    const tool = mcp.toolFactories.messageSearch();
     const wrappedTool = middleware.withToolAuth(tool);
     handler = wrappedTool.handler as (params: unknown, extra: unknown) => Promise<unknown>;
     client = google.gmail({ version: 'v1', auth: auth });

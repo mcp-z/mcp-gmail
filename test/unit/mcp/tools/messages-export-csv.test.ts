@@ -1,11 +1,12 @@
+import type { Logger, StorageExtra } from '@mcp-z/mcp-gmail';
+import { mcp } from '@mcp-z/mcp-gmail';
 import type { EnrichedExtra } from '@mcp-z/oauth-google';
 import type { TypedToolResult } from '@mcp-z/server';
 import assert from 'assert';
 import { existsSync } from 'fs';
 import { mkdir, readFile, rm } from 'fs/promises';
 import * as path from 'path';
-import createTool, { type Input, type Output } from '../../../../src/mcp/tools/messages-export-csv.ts';
-import type { Logger, StorageExtra } from '../../../../src/types.ts';
+import type { Input, Output } from '../../../../src/mcp/tools/messages-export-csv.ts';
 import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
 import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
 
@@ -29,7 +30,7 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
     logger = middlewareContext.logger;
     const middleware = middlewareContext.middleware;
 
-    const tool = createTool();
+    const tool = mcp.toolFactories.messagesExportCsv();
     const wrappedTool = middleware.withToolAuth(tool);
     handler = wrappedTool.handler;
 
@@ -133,7 +134,7 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
     const middleware = middlewareContext.middleware;
     logger = middlewareContext.logger;
     const _middleware = middlewareContext.middleware;
-    const tool = createTool();
+    const tool = mcp.toolFactories.messagesExportCsv();
     const wrappedTool = middleware.withToolAuth(tool);
     const nestedHandler = wrappedTool.handler;
 

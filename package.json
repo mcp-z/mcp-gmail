@@ -1,6 +1,6 @@
 {
   "name": "@mcp-z/mcp-gmail",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "MCP server for Gmail integration with OAuth authentication, message search, batch operations, and Google Sheets export",
   "keywords": [
     "gmail",

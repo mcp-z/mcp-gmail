@@ -1,8 +1,8 @@
+import type { ServerConfig } from '@mcp-z/mcp-gmail';
+import { setup } from '@mcp-z/mcp-gmail';
 import assert from 'assert';
-import { validateStorageConfig } from '../../../src/setup/runtime.ts';
-import type { ServerConfig } from '../../../src/types.ts';
 
-describe('validateStorageConfig (gmail)', () => {
+describe('setup.validateStorageConfig (gmail)', () => {
   // TODO: Add exhaustive DCR matrix tests for tool filtering and /files gating.
   it('warns and skips validation in DCR when resourceStoreUri is set', () => {
     const warnings: string[] = [];
@@ -26,7 +26,7 @@ describe('validateStorageConfig (gmail)', () => {
       repositoryUrl: 'https://github.com/mcp-z/mcp-gmail',
     };
 
-    validateStorageConfig(config, logger);
+    setup.validateStorageConfig(config, logger);
 
     assert.strictEqual(warnings.length, 1);
     assert.ok(warnings[0]?.includes('resourceStoreUri'));
@@ -54,7 +54,7 @@ describe('validateStorageConfig (gmail)', () => {
       repositoryUrl: 'https://github.com/mcp-z/mcp-gmail',
     };
 
-    validateStorageConfig(config, logger);
+    setup.validateStorageConfig(config, logger);
 
     assert.strictEqual(warnings.length, 0);
   });
@@ -80,7 +80,7 @@ describe('validateStorageConfig (gmail)', () => {
       repositoryUrl: 'https://github.com/mcp-z/mcp-gmail',
     };
 
-    assert.throws(() => validateStorageConfig(config, logger), {
+    assert.throws(() => setup.validateStorageConfig(config, logger), {
       message: 'gmail-messages-export-csv: Server configuration missing resourceStoreUri.',
     });
   });
@@ -106,7 +106,7 @@ describe('validateStorageConfig (gmail)', () => {
       repositoryUrl: 'https://github.com/mcp-z/mcp-gmail',
     };
 
-    assert.throws(() => validateStorageConfig(config, logger), {
+    assert.throws(() => setup.validateStorageConfig(config, logger), {
       message: 'gmail-messages-export-csv: HTTP transport requires either baseUrl in server config or port in transport config. This is a server configuration error - please provide --base-url or --port.',
     });
   });

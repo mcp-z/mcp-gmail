@@ -1,9 +1,10 @@
+import type { Logger } from '@mcp-z/mcp-gmail';
+import { mcp } from '@mcp-z/mcp-gmail';
 import { type CallToolResult, McpError } from '@modelcontextprotocol/sdk/types.js';
 import assert from 'assert';
 import type { gmail_v1 } from 'googleapis';
 import { google } from 'googleapis';
-import createTool, { type Input, type Output } from '../../../../src/mcp/tools/message-get.ts';
-import type { Logger } from '../../../../src/types.ts';
+import type { Input, Output } from '../../../../src/mcp/tools/message-get.ts';
 import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
 import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
 import { createTestMessage, deleteTestMessage } from '../../../lib/message-helpers.ts';
@@ -22,7 +23,7 @@ describe('gmail-message-get tests', () => {
     logger = middlewareContext.logger;
     auth = middlewareContext.auth;
     const middleware = middlewareContext.middleware;
-    const tool = createTool();
+    const tool = mcp.toolFactories.messageGet();
     const wrappedTool = middleware.withToolAuth(tool);
     handler = wrappedTool.handler;
     client = google.gmail({ version: 'v1', auth: auth });

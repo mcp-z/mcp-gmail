@@ -23,21 +23,13 @@ Environment variables (from `.env.test`)
 - GOOGLE_CLIENT_ID: OAuth client ID
 - GOOGLE_CLIENT_SECRET: OAuth client secret
 
-Note: Token storage location is automatically determined using zero-config pattern. Use the package helper
-`test/lib/create-middleware-context.ts` to obtain shared package-level tokens stored
-under the package-local `.tokens/{environment}/{provider}/` structure. Tests should share the package token
-store; per-test token isolation (creating distinct token files per test) is
-not permitted. If strict isolation is required for a specific workflow, open
-an RFC so we can design a supported pattern that includes automatic teardown
-and CI safeguards.
+Note: Token storage location is automatically determined using zero-config pattern. Use the package helper `test/lib/create-middleware-context.ts` to obtain shared package-level tokens stored under the package-local `.tokens/{environment}/{provider}/` structure. Tests should share the package token store; per-test token isolation (creating distinct token files per test) is not permitted. If strict isolation is required for a specific workflow, open an RFC so we can design a supported pattern that includes automatic teardown and CI safeguards.
 
-How to run (single test)
-Ensure you have a `.env.test` file at the repository root with the required credentials, then run:
+How to run (single test) Ensure you have a `.env.test` file at the repository root with the required credentials, then run:
 
 tsds test:node test/unit/tools/<tool>.test.js
 
-How to run (all service‑backed tests in this package)
-Ensure `.env.test` contains valid credentials, then run:
+How to run (all service‑backed tests in this package) Ensure `.env.test` contains valid credentials, then run:
 
 tsds test:node test/unit
 
@@ -66,9 +58,7 @@ Notes & security
 - If CI needs to run service‑backed tests, provision secrets in the CI environment (locked) and run these tests in a separate job with limited lifetime and access.
 - Document any manual steps required (for example granting test account access to specific mailboxes).
 
-Example: run a single test file with live calls
-Ensure `.env.test` contains valid credentials and run:
-tsds test:node test/unit/gmail.test.js
+Example: run a single test file with live calls Ensure `.env.test` contains valid credentials and run: tsds test:node test/unit/gmail.test.js
 
 Add package-specific notes below as needed.
 

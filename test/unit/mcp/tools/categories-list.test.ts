@@ -1,6 +1,7 @@
+import { mcp } from '@mcp-z/mcp-gmail';
 import type { TypedToolResult } from '@mcp-z/server';
 import assert from 'assert';
-import createTool, { type Input, type Output } from '../../../../src/mcp/tools/categories-list.ts';
+import type { Input, Output } from '../../../../src/mcp/tools/categories-list.ts';
 import { assertSuccess } from '../../../lib/assertions.ts';
 import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
 import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
@@ -13,7 +14,7 @@ describe('Gmail categories list tool', () => {
     const middlewareContext = await createMiddlewareContext();
     const middleware = middlewareContext.middleware;
     const _middleware = middlewareContext.middleware;
-    const tool = createTool();
+    const tool = mcp.toolFactories.categoriesList();
     const wrappedTool = middleware.withToolAuth(tool);
     handler = wrappedTool.handler;
   });

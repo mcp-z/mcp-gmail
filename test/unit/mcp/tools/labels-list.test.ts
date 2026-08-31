@@ -1,7 +1,8 @@
+import type { Logger } from '@mcp-z/mcp-gmail';
+import { mcp } from '@mcp-z/mcp-gmail';
 import type { TypedToolResult } from '@mcp-z/server';
 import assert from 'assert';
-import createTool, { type Input, type Output } from '../../../../src/mcp/tools/labels-list.ts';
-import type { Logger } from '../../../../src/types.ts';
+import type { Input, Output } from '../../../../src/mcp/tools/labels-list.ts';
 import { assertSuccess } from '../../../lib/assertions.ts';
 import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
 import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
@@ -17,7 +18,7 @@ describe('Gmail labels list tool', () => {
     const middleware = middlewareContext.middleware;
     logger = middlewareContext.logger;
     const _middleware = middlewareContext.middleware;
-    const tool = createTool();
+    const tool = mcp.toolFactories.labelsList();
     const wrappedTool = middleware.withToolAuth(tool);
     handler = wrappedTool.handler;
   });

@@ -1,8 +1,9 @@
+import type { Logger } from '@mcp-z/mcp-gmail';
+import { mcp } from '@mcp-z/mcp-gmail';
 import assert from 'assert';
 import type { gmail_v1 } from 'googleapis';
 import { google } from 'googleapis';
-import createTool, { type Input, type Output } from '../../../../src/mcp/tools/message-move-to-trash.ts';
-import type { Logger } from '../../../../src/types.ts';
+import type { Input, Output } from '../../../../src/mcp/tools/message-move-to-trash.ts';
 import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
 import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
 import { createTestMessage, deleteTestMessage } from '../../../lib/message-helpers.ts';
@@ -20,7 +21,7 @@ describe('gmail-message-move-to-trash', () => {
     logger = middlewareContext.logger;
     auth = middlewareContext.auth;
     const middleware = middlewareContext.middleware;
-    const tool = createTool();
+    const tool = mcp.toolFactories.messageMoveToTrash();
     const wrappedTool = middleware.withToolAuth(tool);
     handler = wrappedTool.handler;
     sharedGmail = google.gmail({ version: 'v1', auth: auth });

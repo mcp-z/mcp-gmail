@@ -1,6 +1,6 @@
 # @mcp-z/mcp-gmail
 
-Docs: https://mcp-z.github.io/mcp-gmail Gmail MCP server for searching, reading, and sending mail over MCP.
+MCP server for Gmail integration with OAuth authentication, message search, batch operations, and Google Sheets export
 
 ## Common uses
 
@@ -209,3 +209,7 @@ TOKEN_STORE_URI=redis://localhost:6379 mcp-gmail
 ```
 
 A protocol whose adapter is missing fails at startup naming the package to install.
+
+### Documentation
+
+[API Docs](https://mcp-z.github.io/mcp-gmail)

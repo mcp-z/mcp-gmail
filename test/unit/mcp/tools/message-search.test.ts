@@ -21,7 +21,7 @@ import waitForSearch from '../../../lib/wait-for-search.ts';
  * including edge cases, error handling, performance, and security scenarios.
  */
 describe('gmail-message-search comprehensive pagination tests', () => {
-  // Local message pool to reduce API calls - QUALITY.md compliant local-first solution
+  // Local message pool to reduce API calls against the live account
   const sharedMessages: string[] = [];
   let client: gmail_v1.Gmail;
   let logger: Logger;

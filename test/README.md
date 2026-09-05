@@ -61,5 +61,3 @@ Notes & security
 Example: run a single test file with live calls Ensure `.env.test` contains valid credentials and run: tsds test:node test/unit/gmail.test.js
 
 Add package-specific notes below as needed.
-
-Docs: https://mcp-z.github.io/mcp-gmail

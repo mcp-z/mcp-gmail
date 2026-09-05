@@ -11,7 +11,7 @@ import { createTestMessage, deleteTestMessage } from '../../../lib/message-helpe
 import waitForMessage from '../../../lib/wait-for-message.ts';
 
 describe('gmail-message-get tests', () => {
-  // Local message pool to reduce API calls - QUALITY.md compliant local-first solution
+  // Local message pool to reduce API calls against the live account
   const sharedMessages: string[] = [];
   let client: gmail_v1.Gmail;
   let logger: Logger;

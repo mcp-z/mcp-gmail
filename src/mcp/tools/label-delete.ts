@@ -8,6 +8,7 @@ import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
 import { google } from 'googleapis';
 import { z } from 'zod';
 import { CHUNK_SIZE, MAX_BATCH_SIZE } from '../../constants.ts';
+import { googleAuth } from '../../lib/google-auth.ts';
 
 const inputSchema = z.object({
   ids: z.array(z.coerce.string().trim().min(1)).min(1).describe('Gmail label IDs to delete'),
@@ -82,7 +83,7 @@ async function handler({ ids }: Input, extra: EnrichedExtra) {
   }
 
   try {
-    const gmail = google.gmail({ version: 'v1', auth: extra.authContext.auth });
+    const gmail = google.gmail({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
     // Get all labels first to check for system labels
     const labelsResponse = await gmail.users.labels.list({ userId: 'me' });
     const allLabels = labelsResponse.data.labels || [];

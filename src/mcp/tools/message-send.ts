@@ -10,6 +10,7 @@ import { google } from 'googleapis';
 import { z } from 'zod';
 import { buildRfc822FromArgs } from '../../email/composition/rfc822-builder.ts';
 import { b64url } from '../../lib/base64-encoding.ts';
+import { googleAuth } from '../../lib/google-auth.ts';
 
 const inputSchema = z.object({
   to: createEmailRecipientsSchema('to', true),
@@ -60,7 +61,7 @@ async function handler(params: Input, extra: EnrichedExtra) {
     const raw = buildRfc822FromArgs(msgArgs);
     const encodedMessage = b64url(raw);
 
-    const gmail = google.gmail({ version: 'v1', auth: extra.authContext.auth });
+    const gmail = google.gmail({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
 
     const sendRes = await gmail.users.messages.send({
       userId: 'me',

@@ -1,6 +1,4 @@
-import type { PromptModule } from '@mcp-z/server';
-import type { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.js';
-import type { ServerNotification, ServerRequest } from '@modelcontextprotocol/sdk/types.js';
+import type { PromptModule, ServerContext } from '@mcp-z/server';
 import { z } from 'zod';
 
 export default function createPrompt() {
@@ -14,7 +12,7 @@ export default function createPrompt() {
     argsSchema: argsSchema.shape,
   };
 
-  const handler = async (args: { [x: string]: unknown }, _extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
+  const handler = async (args: { [x: string]: unknown }, _extra: ServerContext) => {
     const { context, tone } = argsSchema.parse(args);
     return {
       messages: [

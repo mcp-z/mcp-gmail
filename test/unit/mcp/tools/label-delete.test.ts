@@ -44,7 +44,7 @@ describe('gmail-label-delete', () => {
       const response = await handler({ ids: [labelId] }, createExtra());
 
       // Check structured response
-      const structured = response.structuredContent?.result as Output | undefined;
+      const structured = (response.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assert.ok(structured, 'structuredContent missing');
 
       if (structured.type === 'success') {
@@ -97,7 +97,7 @@ describe('gmail-label-delete', () => {
       const response = await handler({ ids: [labelId1, labelId2] }, createExtra());
 
       // Check structured response
-      const structured = response.structuredContent?.result as Output | undefined;
+      const structured = (response.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assert.ok(structured, 'structuredContent missing');
 
       if (structured.type === 'success') {
@@ -146,7 +146,7 @@ describe('gmail-label-delete', () => {
     const response = await handler({ ids: ['INBOX'] }, createExtra());
 
     // Check structured response
-    const structured = response.structuredContent?.result as Output | undefined;
+    const structured = (response.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
     assert.ok(structured, 'structuredContent missing');
 
     if (structured.type === 'success') {
@@ -169,7 +169,7 @@ describe('gmail-label-delete', () => {
     const response = await handler({ ids: [nonExistentId] }, createExtra());
 
     // Check structured response
-    const structured = response.structuredContent?.result as Output | undefined;
+    const structured = (response.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
     assert.ok(structured, 'structuredContent missing');
 
     if (structured.type === 'success') {
@@ -207,7 +207,7 @@ describe('gmail-label-delete', () => {
       );
 
       // Check structured response
-      const structured = response.structuredContent?.result as Output | undefined;
+      const structured = (response.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assert.ok(structured, 'structuredContent missing');
 
       if (structured.type === 'success') {

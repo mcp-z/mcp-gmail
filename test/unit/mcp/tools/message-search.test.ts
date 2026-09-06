@@ -1,7 +1,7 @@
 import type { Logger } from '@mcp-z/mcp-gmail';
 import { mcp } from '@mcp-z/mcp-gmail';
 import type { TypedToolResult } from '@mcp-z/server';
-import { McpError } from '@modelcontextprotocol/sdk/types.js';
+import { ProtocolError } from '@mcp-z/server';
 import assert from 'assert';
 import type { gmail_v1 } from 'googleapis';
 import { google } from 'googleapis';
@@ -61,7 +61,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
 
       assert.ok(result.structuredContent && result.structuredContent, 'structuredContent.result present');
 
-      const branch = (result as unknown as TypedToolResult<Output>).structuredContent?.result as Output | undefined;
+      const branch = ((result as unknown as TypedToolResult<Output>).structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(branch, 'simple query result');
       assert.ok(Array.isArray(branch.items), 'success.items is array');
       assert.ok(
@@ -106,7 +106,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
         createExtra()
       );
 
-      const branch = result.structuredContent?.result as Output | undefined;
+      const branch = (result.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(branch, 'structured query object result');
       const found = branch.items.some((item: unknown) => {
         const i = item as { id?: string };
@@ -146,7 +146,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
         createExtra()
       );
 
-      const firstBranch = firstPageResult.structuredContent?.result as Output | undefined;
+      const firstBranch = (firstPageResult.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(firstBranch, 'pagination first page');
       assert.ok(Array.isArray(firstBranch.items), 'first page items should be array');
 
@@ -165,7 +165,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
           createExtra()
         );
 
-        const secondBranch = secondPageResult.structuredContent?.result as Output | undefined;
+        const secondBranch = (secondPageResult.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
         assertObjectsShape(secondBranch, 'pagination second page');
         assert.ok(Array.isArray(secondBranch.items), 'second page items should be array');
 
@@ -205,7 +205,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
             createExtra()
           );
 
-          const pageBranch = pageResult.structuredContent?.result as Output | undefined;
+          const pageBranch = (pageResult.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
           assertObjectsShape(pageBranch, 'pagination subsequent page');
           if (!pageBranch.nextPageToken) {
             assert.ok(true, 'Successfully handled last page without nextPageToken');
@@ -232,7 +232,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
         createExtra()
       );
 
-      const emptyBranch = emptyResult.structuredContent?.result as Output | undefined;
+      const emptyBranch = (emptyResult.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(emptyBranch, 'empty query result');
       assert.equal(emptyBranch.items.length, 0, 'should return empty results for non-matching query');
       assert.equal(emptyBranch.nextPageToken, undefined, 'should not have nextPageToken for empty results');
@@ -249,7 +249,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
         createExtra()
       );
 
-      const singlePageBranch = singlePageResult.structuredContent?.result as Output | undefined;
+      const singlePageBranch = (singlePageResult.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(singlePageBranch, 'single page result');
       // If results are less than pageSize, all results fit on one page
       assert.ok(Array.isArray(singlePageBranch.items), 'items should be array');
@@ -262,7 +262,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
 
   describe('edge case tests', () => {
     it('pageToken error handling: invalid tokens', async () => {
-      // In the new pattern, errors are thrown as McpError
+      // In the new pattern, errors are thrown as ProtocolError
       try {
         await handler(
           {
@@ -277,7 +277,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
         );
         // If it doesn't throw, it might return success (Gmail sometimes accepts invalid tokens silently)
       } catch (error) {
-        assert.ok(error instanceof McpError, 'should throw McpError for invalid token');
+        assert.ok(error instanceof ProtocolError, 'should throw ProtocolError for invalid token');
       }
     });
 
@@ -291,7 +291,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
 
       for (const testCase of testCases) {
         if (testCase.expectError) {
-          // Invalid page sizes should throw McpError
+          // Invalid page sizes should throw ProtocolError
           try {
             await handler(
               {
@@ -305,7 +305,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
             );
             assert.fail(`should have thrown error for ${testCase.description}`);
           } catch (error) {
-            assert.ok(error instanceof McpError, `should throw McpError for ${testCase.description}`);
+            assert.ok(error instanceof ProtocolError, `should throw ProtocolError for ${testCase.description}`);
           }
         } else {
           // Valid page sizes should succeed
@@ -320,7 +320,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
             createExtra()
           );
 
-          const branch = (result as unknown as TypedToolResult<Output>).structuredContent?.result as Output | undefined;
+          const branch = ((result as unknown as TypedToolResult<Output>).structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
           assertObjectsShape(branch, 'page size validation result');
           if (testCase.expectClamp) {
             assert.ok(branch.items.length <= testCase.expectClamp, `should respect maximum page size for ${testCase.description}`);
@@ -348,7 +348,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
         createExtra()
       );
 
-      const specialCharsBranch = specialCharsResult.structuredContent?.result as Output | undefined;
+      const specialCharsBranch = (specialCharsResult.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(specialCharsBranch, 'special characters in subject result');
       assert.ok(Array.isArray(specialCharsBranch.items), 'should return items array');
 
@@ -364,7 +364,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
         createExtra()
       );
 
-      const symbolsBranch = symbolsResult.structuredContent?.result as Output | undefined;
+      const symbolsBranch = (symbolsResult.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(symbolsBranch, 'symbols in from field result');
       assert.ok(Array.isArray(symbolsBranch.items), 'should return items array');
 
@@ -382,7 +382,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
         createExtra()
       );
 
-      const complexBranch = complexResult.structuredContent?.result as Output | undefined;
+      const complexBranch = (complexResult.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(complexBranch, 'complex query with special chars result');
       assert.ok(Array.isArray(complexBranch.items), 'should return items array');
     });
@@ -422,7 +422,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
 
         // Now verify the tool handler with fuzzyPhrase finds it
         const res = await handler({ query: { fuzzyPhrase: phrase }, pageSize: 10, fields: 'id,subject', shape: 'objects', contentType: 'text', excludeThreadHistory: false }, createExtra());
-        const branch = res?.structuredContent?.result as Output | undefined;
+        const branch = (res?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
         assertObjectsShape(branch, 'fuzzy phrase query result');
         const items = branch.items;
         const toolFound = items.some((item: unknown) => {
@@ -443,7 +443,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
           createExtra()
         );
 
-        const quotedBranch = quotedResult.structuredContent?.result as Output | undefined;
+        const quotedBranch = (quotedResult.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
         assertObjectsShape(quotedBranch, 'fuzzy phrase pagination result');
         assert.ok(Array.isArray(quotedBranch.items), 'should handle fuzzyPhrase queries in pagination');
 
@@ -461,7 +461,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
             createExtra()
           );
 
-          const secondBranch = secondPage.structuredContent?.result as Output | undefined;
+          const secondBranch = (secondPage.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
           assertObjectsShape(secondBranch, 'fuzzy phrase second page result');
         }
       } finally {
@@ -479,7 +479,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
 
       // Test minimal fields (id only - always included automatically)
       const minimalFields = await handler({ query, pageSize: 5, fields: 'subject', shape: 'objects', contentType: 'text', excludeThreadHistory: false }, createExtra());
-      const minimalBranch = minimalFields.structuredContent?.result as Output | undefined;
+      const minimalBranch = (minimalFields.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
 
       assertObjectsShape(minimalBranch, 'minimal fields result');
       assert.ok(Array.isArray(minimalBranch.items), 'should have items array');
@@ -495,7 +495,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
 
       // Test multiple fields
       const multipleFields = await handler({ query, pageSize: 5, fields: 'id,subject,from,date', shape: 'objects', contentType: 'text', excludeThreadHistory: false }, createExtra());
-      const multipleBranch = multipleFields.structuredContent?.result as Output | undefined;
+      const multipleBranch = (multipleFields.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
 
       assertObjectsShape(multipleBranch, 'multiple fields result');
       if (multipleBranch.items.length > 0) {
@@ -513,7 +513,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
       const emptyEmail = `nonexistent-email-${Date.now()}@invalid.domain`;
       const emptyResult = await handler({ query: { from: emptyEmail }, pageSize: 5, fields: 'id,subject', shape: 'objects', contentType: 'text', excludeThreadHistory: false }, createExtra());
 
-      const emptyBranch = emptyResult.structuredContent?.result as Output | undefined;
+      const emptyBranch = (emptyResult.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
 
       assertObjectsShape(emptyBranch, 'empty result with fields');
       assert.ok(Array.isArray(emptyBranch.items), 'should have items array even when empty');
@@ -522,7 +522,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
 
     it('fields parameter works correctly with pagination', async () => {
       const firstPage = await handler({ query: { from: 'me' }, pageSize: 3, fields: 'id,subject,from', shape: 'objects', contentType: 'text', excludeThreadHistory: false }, createExtra());
-      const firstBranch = firstPage.structuredContent?.result as Output | undefined;
+      const firstBranch = (firstPage.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
 
       assertObjectsShape(firstBranch, 'fields pagination first page');
       if (firstBranch.nextPageToken) {
@@ -540,7 +540,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
           },
           createExtra()
         );
-        const secondBranch = secondPage.structuredContent?.result as Output | undefined;
+        const secondBranch = (secondPage.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
         assertObjectsShape(secondBranch, 'fields pagination second page');
         assert.ok(Array.isArray(secondBranch.items), 'second page should have items array');
 
@@ -573,7 +573,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
         createExtra()
       );
 
-      const branch = (result as unknown as TypedToolResult<Output>).structuredContent?.result as Output | undefined;
+      const branch = ((result as unknown as TypedToolResult<Output>).structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(branch, 'field mapping consistency result');
       if (branch.items.length > 0) {
         const firstItem = branch.items[0];
@@ -612,7 +612,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
         createExtra()
       );
 
-      const withoutBodyBranch = withoutBody.structuredContent?.result as Output | undefined;
+      const withoutBodyBranch = (withoutBody.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(withoutBodyBranch, 'body excluded result');
       if (withoutBodyBranch.items.length > 0) {
         const item = withoutBodyBranch.items[0];
@@ -634,7 +634,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
         createExtra()
       );
 
-      const withBodyBranch = withBody.structuredContent?.result as Output | undefined;
+      const withBodyBranch = (withBody.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(withBodyBranch, 'body included result');
       if (withBodyBranch.items.length > 0) {
         const item = withBodyBranch.items[0];
@@ -659,7 +659,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
         createExtra()
       );
 
-      const firstBranch = firstPage.structuredContent?.result as Output | undefined;
+      const firstBranch = (firstPage.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(firstBranch, 'pagination state recovery first page');
       if (firstBranch.nextPageToken) {
         // Simulate session recovery by using pageToken independently
@@ -675,7 +675,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
           createExtra()
         );
 
-        const recoveredBranch = recoveredPage.structuredContent?.result as Output | undefined;
+        const recoveredBranch = (recoveredPage.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
         assertObjectsShape(recoveredBranch, 'pagination state recovery recovered page');
 
         // Verify no overlap with first page
@@ -743,7 +743,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
           createExtra()
         );
 
-        const searchBranch = searchWithFields.structuredContent?.result as Output | undefined;
+        const searchBranch = (searchWithFields.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
         assertObjectsShape(searchBranch, 'integration search with fields result');
         assert.ok(Array.isArray(searchBranch.items), 'should have items array');
 
@@ -769,7 +769,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
           createExtra()
         );
 
-        const searchMinimalBranch = searchMinimal.structuredContent?.result as Output | undefined;
+        const searchMinimalBranch = (searchMinimal.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
         assertObjectsShape(searchMinimalBranch, 'integration search minimal fields result');
         const foundMinimal = searchMinimalBranch.items.find((item: unknown) => {
           const i = item as { id: string };
@@ -790,7 +790,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
           createExtra()
         );
 
-        const getBranch = getWithFields.structuredContent?.result as MessageGetOutput | undefined;
+        const getBranch = (getWithFields.structuredContent as { result?: unknown } | undefined)?.result as MessageGetOutput | undefined;
         assert.equal(getBranch?.type, 'success', 'get with fields should succeed');
         if (getBranch?.type !== 'success') return;
         assert.ok(getBranch.item, 'should have item object');
@@ -931,7 +931,7 @@ describe('gmail-message-search comprehensive query patterns', () => {
         createExtra()
       );
 
-      const branch = (result as unknown as TypedToolResult<Output>).structuredContent?.result as Output | undefined;
+      const branch = ((result as unknown as TypedToolResult<Output>).structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(branch, 'subject field ALICE result');
       assert.ok(Array.isArray(branch.items));
 
@@ -956,7 +956,7 @@ describe('gmail-message-search comprehensive query patterns', () => {
         createExtra()
       );
 
-      const branch = (result as unknown as TypedToolResult<Output>).structuredContent?.result as Output | undefined;
+      const branch = ((result as unknown as TypedToolResult<Output>).structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(branch, 'subject field Report result');
       assert.ok(Array.isArray(branch.items));
 
@@ -981,7 +981,7 @@ describe('gmail-message-search comprehensive query patterns', () => {
         createExtra()
       );
 
-      const branch = (result as unknown as TypedToolResult<Output>).structuredContent?.result as Output | undefined;
+      const branch = ((result as unknown as TypedToolResult<Output>).structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(branch, 'body field budget result');
       assert.ok(Array.isArray(branch.items));
 
@@ -1008,7 +1008,7 @@ describe('gmail-message-search comprehensive query patterns', () => {
         createExtra()
       );
 
-      const branch = (result as unknown as TypedToolResult<Output>).structuredContent?.result as Output | undefined;
+      const branch = ((result as unknown as TypedToolResult<Output>).structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(branch, '$any operator ALICE BOB result');
       assert.ok(Array.isArray(branch.items));
 
@@ -1033,7 +1033,7 @@ describe('gmail-message-search comprehensive query patterns', () => {
         createExtra()
       );
 
-      const branch = (result as unknown as TypedToolResult<Output>).structuredContent?.result as Output | undefined;
+      const branch = ((result as unknown as TypedToolResult<Output>).structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(branch, '$all operator ALICE Report result');
       assert.ok(Array.isArray(branch.items));
 
@@ -1060,7 +1060,7 @@ describe('gmail-message-search comprehensive query patterns', () => {
         createExtra()
       );
 
-      const branch = (result as unknown as TypedToolResult<Output>).structuredContent?.result as Output | undefined;
+      const branch = ((result as unknown as TypedToolResult<Output>).structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(branch, '$none operator result');
       assert.ok(Array.isArray(branch.items));
 
@@ -1091,7 +1091,7 @@ describe('gmail-message-search comprehensive query patterns', () => {
         createExtra()
       );
 
-      const branch = (result as unknown as TypedToolResult<Output>).structuredContent?.result as Output | undefined;
+      const branch = ((result as unknown as TypedToolResult<Output>).structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(branch, '$and operator result');
       assert.ok(Array.isArray(branch.items));
 
@@ -1118,7 +1118,7 @@ describe('gmail-message-search comprehensive query patterns', () => {
         createExtra()
       );
 
-      const branch = (result as unknown as TypedToolResult<Output>).structuredContent?.result as Output | undefined;
+      const branch = ((result as unknown as TypedToolResult<Output>).structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(branch, '$or operator Invoice Conference result');
       assert.ok(Array.isArray(branch.items));
 
@@ -1150,7 +1150,7 @@ describe('gmail-message-search comprehensive query patterns', () => {
         createExtra()
       );
 
-      const branch = (result as unknown as TypedToolResult<Output>).structuredContent?.result as Output | undefined;
+      const branch = ((result as unknown as TypedToolResult<Output>).structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(branch, 'nested logical operators result');
       assert.ok(Array.isArray(branch.items));
 
@@ -1179,7 +1179,7 @@ describe('gmail-message-search comprehensive query patterns', () => {
         createExtra()
       );
 
-      const branch = (result as unknown as TypedToolResult<Output>).structuredContent?.result as Output | undefined;
+      const branch = ((result as unknown as TypedToolResult<Output>).structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(branch, 'work-related messages result');
       assert.ok(Array.isArray(branch.items));
 
@@ -1205,7 +1205,7 @@ describe('gmail-message-search comprehensive query patterns', () => {
         createExtra()
       );
 
-      const branch = (result as unknown as TypedToolResult<Output>).structuredContent?.result as Output | undefined;
+      const branch = ((result as unknown as TypedToolResult<Output>).structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(branch, 'empty query results result');
       assert.ok(Array.isArray(branch.items));
 
@@ -1231,7 +1231,7 @@ describe('gmail-message-search comprehensive query patterns', () => {
         createExtra()
       );
 
-      const branch = (result as unknown as TypedToolResult<Output>).structuredContent?.result as Output | undefined;
+      const branch = ((result as unknown as TypedToolResult<Output>).structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assertObjectsShape(branch, 'subject and body combined filter result');
       assert.ok(Array.isArray(branch.items));
 

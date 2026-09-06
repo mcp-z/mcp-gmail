@@ -1,6 +1,5 @@
 import type { AuthContext, EnrichedExtra } from '@mcp-z/oauth-google';
-import type { AnySchema, SchemaOutput } from '@modelcontextprotocol/sdk/server/zod-compat.js';
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import type { CallToolResult, StandardSchemaWithJSON } from '@mcp-z/server';
 import pino from 'pino';
 import type { StorageContext, StorageExtra } from '../../src/types.ts';
 
@@ -19,11 +18,17 @@ export type TypedHandler<I, E = EnrichedExtra> = (input: I, extra: E) => Promise
 export function createExtra(): EnrichedExtra;
 export function createExtra(storageContext: StorageContext): EnrichedExtra & StorageExtra;
 export function createExtra(storageContext?: StorageContext): EnrichedExtra {
-  const extra: EnrichedExtra & Partial<StorageExtra> = {
-    signal: new AbortController().signal,
-    requestId: 'test-request-id',
-    sendNotification: async () => {},
-    sendRequest: async <U extends AnySchema>() => ({}) as SchemaOutput<U>,
+  const extra = {
+    // v2 nests the per-request fields under mcpReq. Only the members handlers actually
+    // read are stubbed; the cast avoids restating the SDK's whole context in a fixture.
+    mcpReq: {
+      id: 'test-request-id',
+      method: 'tools/call',
+      signal: new AbortController().signal,
+      notify: async () => {},
+      requestState: () => undefined,
+      send: async <U extends StandardSchemaWithJSON>() => ({}) as StandardSchemaWithJSON.InferOutput<U>,
+    },
     // Middleware injects these - placeholders for type compatibility
     authContext: {
       auth: {} as AuthContext['auth'], // Placeholder auth client
@@ -33,5 +38,5 @@ export function createExtra(storageContext?: StorageContext): EnrichedExtra {
     ...(storageContext ? { storageContext } : {}),
   };
 
-  return extra as EnrichedExtra;
+  return extra as unknown as EnrichedExtra;
 }

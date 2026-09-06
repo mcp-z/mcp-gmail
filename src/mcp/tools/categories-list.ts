@@ -4,7 +4,7 @@ import { schemas } from '@mcp-z/oauth-google';
 const { AuthRequiredBranchSchema } = schemas;
 
 import type { ToolModule } from '@mcp-z/server';
-import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
+import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
 import { google } from 'googleapis';
 import { z } from 'zod';
 
@@ -122,7 +122,7 @@ async function handler(_: Input, extra: EnrichedExtra) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error('gmail.categories.list error', { error: message });
 
-    throw new McpError(ErrorCode.InternalError, `Error listing categories: ${message}`, {
+    throw new ProtocolError(ProtocolErrorCode.InternalError, `Error listing categories: ${message}`, {
       stack: error instanceof Error ? error.stack : undefined,
     });
   }

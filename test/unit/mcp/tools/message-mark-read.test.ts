@@ -41,7 +41,7 @@ describe('message-mark-read tool', () => {
       const mrResp = await handler({ id: sentId }, createExtra());
 
       // Canonical machine-readable payload must be present in structuredContent.result
-      const structured = mrResp.structuredContent?.result as Output | undefined;
+      const structured = (mrResp.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assert.ok(structured, 'structuredContent missing');
       if (structured.type === 'success') {
         // success branch has id property at root level

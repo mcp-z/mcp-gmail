@@ -40,7 +40,7 @@ describe('Gmail message send tool (integration)', () => {
       assert.ok(result, 'Handler returned no result');
 
       // Validate structuredContent.result matches outputSchema
-      const structured = (result as unknown as TypedToolResult<Output>)?.structuredContent?.result as Output | undefined;
+      const structured = ((result as unknown as TypedToolResult<Output>)?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assert.ok(structured, 'Response missing structuredContent.result');
       assert.strictEqual(structured.type, 'success', 'Expected success result');
       assert.ok(structured.item, 'Success result missing item');
@@ -86,7 +86,7 @@ describe('Gmail message send tool (integration)', () => {
       assert.ok(result, 'Handler returned no result');
 
       // Validate structuredContent.result matches outputSchema
-      const structured = (result as unknown as TypedToolResult<Output>)?.structuredContent?.result as Output | undefined;
+      const structured = ((result as unknown as TypedToolResult<Output>)?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assert.ok(structured, 'Response missing structuredContent.result');
       assert.strictEqual(structured.type, 'success', 'Expected success result');
       assert.ok(structured.item, 'Success result missing item');

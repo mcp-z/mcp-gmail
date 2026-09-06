@@ -1,8 +1,6 @@
 import type { EnrichedExtra } from '@mcp-z/oauth-google';
-import type { ResourceConfig, ResourceModule } from '@mcp-z/server';
-import { ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
-import type { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.js';
-import type { ReadResourceResult, ServerNotification, ServerRequest } from '@modelcontextprotocol/sdk/types.js';
+import type { ReadResourceResult, ResourceConfig, ResourceModule, ServerContext } from '@mcp-z/server';
+import { ResourceTemplate } from '@mcp-z/server';
 import { type gmail_v1, google } from 'googleapis';
 import { extractEmails, extractFrom } from '../../email/parsing/message-extraction.ts';
 import { toIsoUtc } from '../../lib/date-conversion.ts';
@@ -16,7 +14,7 @@ export default function createResource() {
     mimeType: 'application/json',
   };
 
-  const handler = async (uri: URL, variables: { id: string }, extra: RequestHandlerExtra<ServerRequest, ServerNotification>): Promise<ReadResourceResult> => {
+  const handler = async (uri: URL, variables: { id: string }, extra: ServerContext): Promise<ReadResourceResult> => {
     try {
       const { logger, authContext } = extra as unknown as EnrichedExtra;
 

@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../constants.ts';
 import { extractBodyFromPayload } from '../../email/parsing/html-processing.ts';
 import { executeQuery as executeGmailQuery } from '../../email/querying/execute-query.ts';
+import { googleAuth } from '../../lib/google-auth.ts';
 import { GmailQueryParameterSchema, parseGmailQueryParameter } from '../../schemas/gmail-query-schema.ts';
 
 const inputSchema = z.object({
@@ -77,7 +78,7 @@ async function handler({ query, pageSize = DEFAULT_PAGE_SIZE, pageToken, fields,
       accountId: extra.authContext.accountId, // Available from middleware
     });
 
-    const gmail = google.gmail({ version: 'v1', auth: extra.authContext.auth });
+    const gmail = google.gmail({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
 
     const started = Date.now();
 

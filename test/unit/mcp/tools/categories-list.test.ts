@@ -23,7 +23,7 @@ describe('Gmail categories list tool', () => {
     const result = await handler({}, createExtra());
 
     // Canonical machine-readable payload must be present in structuredContent.result
-    const payload = (result as unknown as TypedToolResult<Output>)?.structuredContent?.result as Output | undefined;
+    const payload = ((result as unknown as TypedToolResult<Output>)?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
     assertSuccess(payload, 'categories list response');
     assert.ok('items' in payload);
     assert.ok(Array.isArray(payload.items));

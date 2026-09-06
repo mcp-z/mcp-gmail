@@ -4,7 +4,7 @@ import { schemas } from '@mcp-z/oauth-google';
 const { AuthRequiredBranchSchema } = schemas;
 
 import type { ToolModule } from '@mcp-z/server';
-import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
+import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
 import { google } from 'googleapis';
 import { z } from 'zod';
 
@@ -35,7 +35,7 @@ async function handler({ id }: Input, extra: EnrichedExtra) {
   logger.info('gmail-message-mark-read called', { id: Boolean(id) });
 
   if (!id) {
-    throw new McpError(ErrorCode.InvalidParams, 'Missing id');
+    throw new ProtocolError(ProtocolErrorCode.InvalidParams, 'Missing id');
   }
 
   try {
@@ -68,7 +68,7 @@ async function handler({ id }: Input, extra: EnrichedExtra) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error('gmail-message-mark-read error', { error: message });
 
-    throw new McpError(ErrorCode.InternalError, `Error marking message as read: ${message}`, {
+    throw new ProtocolError(ProtocolErrorCode.InternalError, `Error marking message as read: ${message}`, {
       stack: error instanceof Error ? error.stack : undefined,
     });
   }

@@ -4,7 +4,7 @@ import { schemas } from '@mcp-z/oauth-google';
 const { AuthRequiredBranchSchema } = schemas;
 
 import type { ToolModule } from '@mcp-z/server';
-import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
+import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
 import { google } from 'googleapis';
 import { z } from 'zod';
 import { ensureLabelId } from '../../labels/gmail-labels.ts';
@@ -43,7 +43,7 @@ async function handler({ id, label }: Input, extra: EnrichedExtra) {
 
   if (!id || !label) {
     logger.info('gmail.label.add missing parameters', { id, label });
-    throw new McpError(ErrorCode.InvalidParams, 'Missing id or label');
+    throw new ProtocolError(ProtocolErrorCode.InvalidParams, 'Missing id or label');
   }
 
   try {
@@ -79,7 +79,7 @@ async function handler({ id, label }: Input, extra: EnrichedExtra) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error('gmail.label.add error', { error: message });
 
-    throw new McpError(ErrorCode.InternalError, `Error adding label to message: ${message}`, {
+    throw new ProtocolError(ProtocolErrorCode.InternalError, `Error adding label to message: ${message}`, {
       stack: error instanceof Error ? error.stack : undefined,
     });
   }

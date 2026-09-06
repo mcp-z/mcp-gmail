@@ -4,8 +4,7 @@ import { schemas } from '@mcp-z/oauth-google';
 
 const { AuthRequiredBranchSchema } = schemas;
 
-import { createFieldsSchema, filterFields, parseFields, type ToolModule } from '@mcp-z/server';
-import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
+import { createFieldsSchema, filterFields, ProtocolError, ProtocolErrorCode, parseFields, type ToolModule } from '@mcp-z/server';
 import { type gmail_v1, google } from 'googleapis';
 import { z } from 'zod';
 import { extractBodyFromPayload, extractEmails, extractFrom } from '../../email/parsing/message-extraction.ts';
@@ -52,7 +51,7 @@ async function handler({ id, fields, contentType, excludeThreadHistory }: Input,
 
   try {
     if (!id) {
-      throw new McpError(ErrorCode.InvalidParams, 'Missing id');
+      throw new ProtocolError(ProtocolErrorCode.InvalidParams, 'Missing id');
     }
 
     const gmail = google.gmail({ version: 'v1', auth: extra.authContext.auth });
@@ -64,7 +63,7 @@ async function handler({ id, fields, contentType, excludeThreadHistory }: Input,
     });
     const fullData = response.data;
     if (!fullData) {
-      throw new McpError(ErrorCode.InvalidRequest, 'Message not found');
+      throw new ProtocolError(ProtocolErrorCode.InvalidRequest, 'Message not found');
     }
 
     // Build full message data with type guards
@@ -120,7 +119,7 @@ async function handler({ id, fields, contentType, excludeThreadHistory }: Input,
     const message = error instanceof Error ? error.message : String(error);
     logger.error('gmail.message.get error', { error: message });
 
-    throw new McpError(ErrorCode.InternalError, `Error getting message: ${message}`, {
+    throw new ProtocolError(ProtocolErrorCode.InternalError, `Error getting message: ${message}`, {
       stack: error instanceof Error ? error.stack : undefined,
     });
   }

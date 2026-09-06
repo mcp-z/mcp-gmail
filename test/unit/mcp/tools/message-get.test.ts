@@ -1,6 +1,6 @@
 import type { Logger } from '@mcp-z/mcp-gmail';
 import { mcp } from '@mcp-z/mcp-gmail';
-import { type CallToolResult, McpError } from '@modelcontextprotocol/sdk/types.js';
+import { type CallToolResult, ProtocolError } from '@mcp-z/server';
 import assert from 'assert';
 import type { gmail_v1 } from 'googleapis';
 import { google } from 'googleapis';
@@ -53,7 +53,7 @@ describe('gmail-message-get tests', () => {
     const res = await handler({ id: sentId, fields: 'id,subject,body,from', contentType: 'text', excludeThreadHistory: false }, createExtra());
 
     // Canonical machine-readable payload must be present in structuredContent.result
-    const payload = (res as CallToolResult)?.structuredContent?.result as Output | undefined;
+    const payload = ((res as CallToolResult)?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
     assert.ok(payload, 'structuredContent missing');
     if (payload.type === 'success') {
       const p = payload as { ok?: boolean; item?: { id?: string; subject?: string; body?: string; ok?: boolean; [key: string]: unknown } };
@@ -76,7 +76,7 @@ describe('gmail-message-get tests', () => {
 
       const res = await handler({ id: sentId, contentType: 'text', excludeThreadHistory: false }, createExtra());
 
-      const payload = (res as CallToolResult)?.structuredContent?.result as Output | undefined;
+      const payload = ((res as CallToolResult)?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assert.ok(payload, 'structuredContent missing');
 
       if (payload.type === 'success') {
@@ -104,7 +104,7 @@ describe('gmail-message-get tests', () => {
 
         const res = await handler({ id: sentId, fields: 'id,subject,from', contentType: 'text', excludeThreadHistory: false }, createExtra());
 
-        const payload = (res as CallToolResult)?.structuredContent?.result as Output | undefined;
+        const payload = ((res as CallToolResult)?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
         assert.ok(payload, 'structuredContent missing');
 
         if (payload.type === 'success') {
@@ -140,7 +140,7 @@ describe('gmail-message-get tests', () => {
 
         const res = await handler({ id: sentId, fields: 'id', contentType: 'text', excludeThreadHistory: false }, createExtra());
 
-        const payload = (res as CallToolResult)?.structuredContent?.result as Output | undefined;
+        const payload = ((res as CallToolResult)?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
         assert.ok(payload, 'structuredContent missing');
 
         if (payload.type === 'success') {
@@ -166,31 +166,31 @@ describe('gmail-message-get tests', () => {
     it('minimal fields with nonexistent message', async () => {
       const nonexistentId = 'nonexistent-message-id-123';
 
-      // In the new pattern, errors are thrown as McpError
+      // In the new pattern, errors are thrown as ProtocolError
       await assert.rejects(
         async () => await handler({ id: nonexistentId, fields: 'id', contentType: 'text', excludeThreadHistory: false }, createExtra()),
         (error: unknown) => {
-          assert.ok(error instanceof McpError, 'should throw McpError');
+          assert.ok(error instanceof ProtocolError, 'should throw ProtocolError');
           return true;
         }
       );
     });
 
     it('fields parameter behavior with missing id parameter', async () => {
-      // In the new pattern, errors are thrown as McpError
+      // In the new pattern, errors are thrown as ProtocolError
       await assert.rejects(
         async () => await handler({ fields: 'id,subject,from,body', contentType: 'text', excludeThreadHistory: false } as Input, createExtra()),
         (error: unknown) => {
-          assert.ok(error instanceof McpError, 'should throw McpError');
+          assert.ok(error instanceof ProtocolError, 'should throw ProtocolError');
           return true;
         }
       );
 
-      // Test with minimal fields - also should throw McpError
+      // Test with minimal fields - also should throw ProtocolError
       await assert.rejects(
         async () => await handler({ fields: 'id', contentType: 'text', excludeThreadHistory: false } as Input, createExtra()),
         (error: unknown) => {
-          assert.ok(error instanceof McpError, 'should throw McpError');
+          assert.ok(error instanceof ProtocolError, 'should throw ProtocolError');
           return true;
         }
       );

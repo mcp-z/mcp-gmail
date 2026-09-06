@@ -1,6 +1,6 @@
 import type { Logger } from '@mcp-z/mcp-gmail';
 import { mcp } from '@mcp-z/mcp-gmail';
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import type { CallToolResult } from '@mcp-z/server';
 import assert from 'assert';
 import type { gmail_v1 } from 'googleapis';
 import { google } from 'googleapis';
@@ -62,7 +62,7 @@ describe('label-add tool', () => {
       const addResp = await handler({ id: sentId, label: labelName }, createExtra());
 
       // Canonical machine-readable payload must be present in structuredContent.result
-      const structured = (addResp as CallToolResult)?.structuredContent?.result as Output | undefined;
+      const structured = ((addResp as CallToolResult)?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assert.ok(structured, 'structuredContent missing');
       if (structured.type === 'success') {
         const s = structured as {

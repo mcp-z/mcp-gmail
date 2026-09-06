@@ -26,7 +26,7 @@ describe('Gmail labels list tool', () => {
     const result = await handler({}, createExtra());
 
     // Canonical machine-readable payload must be present in structuredContent.result
-    const payload = (result as unknown as TypedToolResult<Output>)?.structuredContent?.result as Output | undefined;
+    const payload = ((result as unknown as TypedToolResult<Output>)?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
     assertSuccess(payload, 'labels list response');
     if (!('items' in payload)) {
       assert.fail('expected items field on success payload');
@@ -98,7 +98,7 @@ describe('Gmail labels list tool', () => {
   it('handles case-sensitive label names correctly', async () => {
     const result = await handler({}, createExtra());
 
-    const payload = (result as unknown as TypedToolResult<Output>)?.structuredContent?.result as Output | undefined;
+    const payload = ((result as unknown as TypedToolResult<Output>)?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
     assertSuccess(payload, 'labels list case sensitivity response');
     if (!('items' in payload)) {
       assert.fail('expected items field on success payload');

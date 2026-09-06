@@ -1,4 +1,4 @@
-import type { gmail_v1 } from 'googleapis';
+import type { gmail_v1 } from '@googleapis/gmail';
 import { setTimeout as delay } from 'timers/promises';
 
 export default async function waitForLabel(gmail: gmail_v1.Gmail, id: string, opts: { interval?: number; timeout?: number } = {}): Promise<gmail_v1.Schema$Label> {

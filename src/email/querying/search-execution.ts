@@ -1,4 +1,4 @@
-import type { gmail_v1 } from 'googleapis';
+import type { gmail_v1 } from '@googleapis/gmail';
 import type { GmailQuery as QueryNode } from '../../schemas/gmail-query-schema.ts';
 import type { Logger } from '../../types.ts';
 import { type FetchMessagesPageParams, fetchMessagesPage } from './pagination.ts';

@@ -1,10 +1,9 @@
+import { type gmail_v1, gmail as gmailApi } from '@googleapis/gmail';
 import type { Logger } from '@mcp-z/mcp-gmail';
 import { mcp } from '@mcp-z/mcp-gmail';
 import type { TypedToolResult } from '@mcp-z/server';
 import { ProtocolError } from '@mcp-z/server';
 import assert from 'assert';
-import type { gmail_v1 } from 'googleapis';
-import { google } from 'googleapis';
 import type { Output as MessageGetOutput } from '../../../../src/mcp/tools/message-get.ts';
 import type { Input, Output } from '../../../../src/mcp/tools/message-search.ts';
 import { assertObjectsShape } from '../../../lib/assertions.ts';
@@ -36,7 +35,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
     const tool = mcp.toolFactories.messageSearch();
     const wrappedTool = middleware.withToolAuth(tool);
     handler = wrappedTool.handler;
-    client = google.gmail({ version: 'v1', auth: auth });
+    client = gmailApi({ version: 'v1', auth: auth });
 
     // Create a small pool of shared test messages to reuse across tests
     for (let i = 0; i < 3; i++) {
@@ -830,7 +829,7 @@ describe('gmail-message-search comprehensive query patterns', () => {
     const tool = mcp.toolFactories.messageSearch();
     const wrappedTool = middleware.withToolAuth(tool);
     handler = wrappedTool.handler as (params: unknown, extra: unknown) => Promise<unknown>;
-    client = google.gmail({ version: 'v1', auth: auth });
+    client = gmailApi({ version: 'v1', auth: auth });
 
     // Get user email for from/to addressing
     const profileResp = await client.users.getProfile({ userId: 'me' });

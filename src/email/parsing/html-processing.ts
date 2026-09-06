@@ -1,5 +1,5 @@
+import type { gmail_v1 } from '@googleapis/gmail';
 import { extractCurrentMessageFromHtml } from '@mcp-z/email';
-import type { gmail_v1 } from 'googleapis';
 import { parse } from 'node-html-parser';
 
 export interface BodyExtractionOptions {

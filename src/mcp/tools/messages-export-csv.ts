@@ -1,3 +1,4 @@
+import { type gmail_v1, gmail as gmailApi } from '@googleapis/gmail';
 import { EmailContentTypeSchema, ExcludeThreadHistorySchema } from '@mcp-z/email';
 import type { EnrichedExtra } from '@mcp-z/oauth-google';
 import { schemas } from '@mcp-z/oauth-google';
@@ -9,7 +10,6 @@ import { getFileUri, ProtocolError, ProtocolErrorCode, reserveFile, type ToolMod
 import { stringify } from 'csv-stringify/sync';
 import { createWriteStream } from 'fs';
 import { unlink } from 'fs/promises';
-import { type gmail_v1, google } from 'googleapis';
 import { z } from 'zod';
 import { DEFAULT_PAGE_SIZE } from '../../constants.ts';
 import { extractBodyFromPayload } from '../../email/parsing/html-processing.ts';
@@ -103,7 +103,7 @@ async function handler({ query, maxItems, filename, contentType, excludeThreadHi
       accountId: extra.authContext.accountId,
     });
 
-    const gmail = google.gmail({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
+    const gmail = gmailApi({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
 
     // Create CSV headers (all email fields)
     const csvHeaders = ['id', 'threadId', 'from', 'to', 'cc', 'bcc', 'subject', 'date', 'snippet', 'body', 'provider', 'labels'];

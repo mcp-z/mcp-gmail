@@ -1,3 +1,4 @@
+import { gmail as gmailApi } from '@googleapis/gmail';
 import type { EnrichedExtra } from '@mcp-z/oauth-google';
 import { schemas } from '@mcp-z/oauth-google';
 
@@ -5,7 +6,6 @@ const { AuthRequiredBranchSchema } = schemas;
 
 import type { ToolModule } from '@mcp-z/server';
 import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
-import { google } from 'googleapis';
 import { z } from 'zod';
 import { CHUNK_SIZE, MAX_BATCH_SIZE } from '../../constants.ts';
 import { googleAuth } from '../../lib/google-auth.ts';
@@ -83,7 +83,7 @@ async function handler({ ids }: Input, extra: EnrichedExtra) {
   }
 
   try {
-    const gmail = google.gmail({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
+    const gmail = gmailApi({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
     // Process operations in chunks to prevent memory exhaustion
     const allResults: Array<{ id: string; success: boolean; error?: string }> = [];
 

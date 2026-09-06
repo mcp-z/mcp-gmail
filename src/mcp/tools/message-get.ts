@@ -1,3 +1,4 @@
+import { type gmail_v1, gmail as gmailApi } from '@googleapis/gmail';
 import { EMAIL_COMMON_PATTERNS, EMAIL_FIELD_DESCRIPTIONS, EMAIL_FIELDS, EmailContentTypeSchema, type EmailDetail, EmailDetailSchema, ExcludeThreadHistorySchema } from '@mcp-z/email';
 import type { EnrichedExtra } from '@mcp-z/oauth-google';
 import { schemas } from '@mcp-z/oauth-google';
@@ -5,7 +6,6 @@ import { schemas } from '@mcp-z/oauth-google';
 const { AuthRequiredBranchSchema } = schemas;
 
 import { createFieldsSchema, filterFields, ProtocolError, ProtocolErrorCode, parseFields, type ToolModule } from '@mcp-z/server';
-import { type gmail_v1, google } from 'googleapis';
 import { z } from 'zod';
 import { extractBodyFromPayload, extractEmails, extractFrom } from '../../email/parsing/message-extraction.ts';
 import { toIsoUtc } from '../../lib/date-conversion.ts';
@@ -55,7 +55,7 @@ async function handler({ id, fields, contentType, excludeThreadHistory }: Input,
       throw new ProtocolError(ProtocolErrorCode.InvalidParams, 'Missing id');
     }
 
-    const gmail = google.gmail({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
+    const gmail = gmailApi({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
     const response = await gmail.users.messages.get({
       userId: 'me',
       id: id,

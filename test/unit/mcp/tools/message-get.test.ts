@@ -1,9 +1,8 @@
+import { type gmail_v1, gmail as gmailApi } from '@googleapis/gmail';
 import type { Logger } from '@mcp-z/mcp-gmail';
 import { mcp } from '@mcp-z/mcp-gmail';
 import { type CallToolResult, ProtocolError } from '@mcp-z/server';
 import assert from 'assert';
-import type { gmail_v1 } from 'googleapis';
-import { google } from 'googleapis';
 import type { Input, Output } from '../../../../src/mcp/tools/message-get.ts';
 import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
 import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
@@ -26,7 +25,7 @@ describe('gmail-message-get tests', () => {
     const tool = mcp.toolFactories.messageGet();
     const wrappedTool = middleware.withToolAuth(tool);
     handler = wrappedTool.handler;
-    client = google.gmail({ version: 'v1', auth: auth });
+    client = gmailApi({ version: 'v1', auth: auth });
 
     // Create a small pool of shared test messages to reuse across tests
     for (let i = 0; i < 2; i++) {

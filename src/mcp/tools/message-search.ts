@@ -1,3 +1,4 @@
+import { type gmail_v1, gmail as gmailApi } from '@googleapis/gmail';
 import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
 /** Gmail message search using middleware-based auth pattern */
 
@@ -8,7 +9,6 @@ import { schemas } from '@mcp-z/oauth-google';
 const { AuthRequiredBranchSchema } = schemas;
 
 import { createFieldsSchema, createPaginationSchema, createShapeSchema, filterFields, parseFields, type ToolModule, toColumnarFormat } from '@mcp-z/server';
-import { type gmail_v1, google } from 'googleapis';
 import { z } from 'zod';
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../constants.ts';
 import { extractBodyFromPayload } from '../../email/parsing/html-processing.ts';
@@ -78,7 +78,7 @@ async function handler({ query, pageSize = DEFAULT_PAGE_SIZE, pageToken, fields,
       accountId: extra.authContext.accountId, // Available from middleware
     });
 
-    const gmail = google.gmail({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
+    const gmail = gmailApi({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
 
     const started = Date.now();
 

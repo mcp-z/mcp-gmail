@@ -1,3 +1,4 @@
+import { gmail as gmailApi } from '@googleapis/gmail';
 import { ComposeContentTypeSchema } from '@mcp-z/email';
 import type { EnrichedExtra } from '@mcp-z/oauth-google';
 import { schemas } from '@mcp-z/oauth-google';
@@ -6,7 +7,6 @@ const { AuthRequiredBranchSchema } = schemas;
 
 import type { ToolModule } from '@mcp-z/server';
 import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
-import { google } from 'googleapis';
 import { z } from 'zod';
 import { extractEmails } from '../../email/parsing/headers-utils.ts';
 import { b64url } from '../../lib/base64-encoding.ts';
@@ -46,7 +46,7 @@ async function handler({ id, body, contentType }: Input, extra: EnrichedExtra) {
   logger.info('gmail.message.respond called', { id, contentType });
 
   try {
-    const gmail = google.gmail({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
+    const gmail = gmailApi({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
 
     let full: unknown;
     try {

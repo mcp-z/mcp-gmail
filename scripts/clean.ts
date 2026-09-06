@@ -12,9 +12,9 @@
  *   node scripts/clean.ts --headless # Prints URL for CI/SSH environments
  */
 
+import { gmail as gmailApi, auth as googleAuthPlus } from '@googleapis/gmail';
 import { AuthRequiredError, listAccountIds } from '@mcp-z/oauth';
 import { LoopbackOAuthProvider } from '@mcp-z/oauth-google';
-import { google } from 'googleapis';
 import type { Keyv } from 'keyv';
 import { GOOGLE_SCOPE } from '../src/constants.ts';
 import createStore from '../src/lib/create-store.ts';
@@ -64,9 +64,9 @@ async function cleanMail(): Promise<void> {
     console.log('');
 
     // Create Gmail client with OAuth2 client
-    const oauth2Client = new google.auth.OAuth2();
+    const oauth2Client = new googleAuthPlus.OAuth2();
     oauth2Client.setCredentials({ access_token: token });
-    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+    const gmail = gmailApi({ version: 'v1', auth: oauth2Client });
 
     console.log('Searching for all messages...');
 

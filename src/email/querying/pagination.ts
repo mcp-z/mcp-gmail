@@ -1,6 +1,6 @@
 /** Gmail pagination helpers for single-page operations. */
 
-import type { gmail_v1 } from 'googleapis';
+import type { gmail_v1 } from '@googleapis/gmail';
 import type { Logger } from '../../types.ts';
 
 export interface SinglePageResult {

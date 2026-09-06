@@ -1,8 +1,7 @@
+import { type gmail_v1, gmail as gmailApi } from '@googleapis/gmail';
 import type { Logger } from '@mcp-z/mcp-gmail';
 import { mcp } from '@mcp-z/mcp-gmail';
 import assert from 'assert';
-import type { gmail_v1 } from 'googleapis';
-import { google } from 'googleapis';
 import type { Input, Output } from '../../../../src/mcp/tools/label-delete.ts';
 import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
 import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
@@ -24,7 +23,7 @@ describe('gmail-label-delete', () => {
     const tool = mcp.toolFactories.labelDelete();
     const wrappedTool = middleware.withToolAuth(tool);
     handler = wrappedTool.handler;
-    sharedGmail = google.gmail({ version: 'v1', auth: auth });
+    sharedGmail = gmailApi({ version: 'v1', auth: auth });
   });
   it('deletes single label successfully', async () => {
     const gmail = sharedGmail;

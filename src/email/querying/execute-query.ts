@@ -1,5 +1,5 @@
+import type { gmail_v1 } from '@googleapis/gmail';
 import type { ExecutionResult } from '@mcp-z/email';
-import type { gmail_v1 } from 'googleapis';
 import { MAX_PAGE_SIZE } from '../../constants.ts';
 import type { GmailQuery as QueryNode } from '../../schemas/gmail-query-schema.ts';
 import type { Logger } from '../../types.ts';

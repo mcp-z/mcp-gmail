@@ -1,3 +1,4 @@
+import { gmail as gmailApi } from '@googleapis/gmail';
 import { ComposeContentTypeSchema, createEmailRecipientsSchema, createMessageResultSchema } from '@mcp-z/email';
 import type { EnrichedExtra } from '@mcp-z/oauth-google';
 import { schemas } from '@mcp-z/oauth-google';
@@ -6,7 +7,6 @@ const { AuthRequiredBranchSchema } = schemas;
 
 import type { ToolModule } from '@mcp-z/server';
 import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
-import { google } from 'googleapis';
 import { z } from 'zod';
 import { buildRfc822FromArgs } from '../../email/composition/rfc822-builder.ts';
 import { b64url } from '../../lib/base64-encoding.ts';
@@ -61,7 +61,7 @@ async function handler(params: Input, extra: EnrichedExtra) {
     const raw = buildRfc822FromArgs(msgArgs);
     const encodedMessage = b64url(raw);
 
-    const gmail = google.gmail({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
+    const gmail = gmailApi({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
 
     const sendRes = await gmail.users.messages.send({
       userId: 'me',

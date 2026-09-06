@@ -1,7 +1,7 @@
+import { type gmail_v1, gmail as gmailApi } from '@googleapis/gmail';
 import type { EnrichedExtra } from '@mcp-z/oauth-google';
 import type { ReadResourceResult, ResourceConfig, ResourceModule, ServerContext } from '@mcp-z/server';
 import { ResourceTemplate } from '@mcp-z/server';
-import { type gmail_v1, google } from 'googleapis';
 import { extractEmails, extractFrom } from '../../email/parsing/message-extraction.ts';
 import { toIsoUtc } from '../../lib/date-conversion.ts';
 import { googleAuth } from '../../lib/google-auth.ts';
@@ -21,7 +21,7 @@ export default function createResource() {
 
       logger.info(variables, 'gmail-email resource fetch');
 
-      const gmail = google.gmail({ version: 'v1', auth: googleAuth(authContext.auth) });
+      const gmail = gmailApi({ version: 'v1', auth: googleAuth(authContext.auth) });
       const response = await gmail.users.messages.get({
         userId: 'me',
         id: variables.id,

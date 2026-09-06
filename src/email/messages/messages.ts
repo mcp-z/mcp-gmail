@@ -1,5 +1,5 @@
+import type { gmail_v1 } from '@googleapis/gmail';
 import { buildContentForItems } from '@mcp-z/email';
-import type { gmail_v1 } from 'googleapis';
 import { safeBase64Decode } from '../../lib/base64-encoding.ts';
 import { toIsoUtc } from '../../lib/date-conversion.ts';
 import { extractEmails, extractFrom } from '../parsing/headers-utils.ts';

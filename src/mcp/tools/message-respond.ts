@@ -5,7 +5,7 @@ import { schemas } from '@mcp-z/oauth-google';
 const { AuthRequiredBranchSchema } = schemas;
 
 import type { ToolModule } from '@mcp-z/server';
-import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
+import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
 import { google } from 'googleapis';
 import { z } from 'zod';
 import { extractEmails } from '../../email/parsing/headers-utils.ts';
@@ -39,7 +39,7 @@ async function handler({ id, body, contentType }: Input, extra: EnrichedExtra) {
   const logger = extra.logger;
 
   if (!id || !body) {
-    throw new McpError(ErrorCode.InvalidParams, 'Missing id or body');
+    throw new ProtocolError(ProtocolErrorCode.InvalidParams, 'Missing id or body');
   }
 
   logger.info('gmail.message.respond called', { id, contentType });
@@ -60,7 +60,7 @@ async function handler({ id, body, contentType }: Input, extra: EnrichedExtra) {
       const message = error instanceof Error ? error.message : String(error);
       logger.error('gmail.message.respond fetch error', { error: message });
 
-      throw new McpError(ErrorCode.InternalError, `Error fetching message metadata: ${message}`, {
+      throw new ProtocolError(ProtocolErrorCode.InternalError, `Error fetching message metadata: ${message}`, {
         stack: error instanceof Error ? error.stack : undefined,
       });
     }
@@ -117,7 +117,7 @@ async function handler({ id, body, contentType }: Input, extra: EnrichedExtra) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error('gmail.message.respond error', { error: message });
 
-    throw new McpError(ErrorCode.InternalError, `Error responding to message: ${message}`, {
+    throw new ProtocolError(ProtocolErrorCode.InternalError, `Error responding to message: ${message}`, {
       stack: error instanceof Error ? error.stack : undefined,
     });
   }

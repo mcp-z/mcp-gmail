@@ -44,7 +44,7 @@ describe('gmail-message-move-to-trash', () => {
       const trashResp = await handler({ ids: [sentId] }, createExtra());
 
       // Canonical machine-readable payload must be present in structuredContent.result
-      const structured = trashResp.structuredContent?.result as Output | undefined;
+      const structured = (trashResp.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assert.ok(structured, 'structuredContent missing');
       if (structured.type === 'success') {
         // Access properties directly on structured (no item wrapper)
@@ -87,7 +87,7 @@ describe('gmail-message-move-to-trash', () => {
       const trashResp = await handler({ ids: [sentId1, sentId2] }, createExtra());
 
       // Check structured response
-      const structured = trashResp.structuredContent?.result as Output | undefined;
+      const structured = (trashResp.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assert.ok(structured, 'structuredContent missing');
 
       if (structured.type === 'success') {
@@ -143,7 +143,7 @@ describe('gmail-message-move-to-trash', () => {
       const trashResp = await handler({ ids: [validId, nonExistentId] }, createExtra());
 
       // Check structured response
-      const structured = trashResp.structuredContent?.result as Output | undefined;
+      const structured = (trashResp.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assert.ok(structured, 'structuredContent missing');
 
       if (structured.type === 'success') {

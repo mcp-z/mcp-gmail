@@ -1,4 +1,4 @@
-import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
+import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
 /** Gmail message search using middleware-based auth pattern */
 
 import { EMAIL_COMMON_PATTERNS, EMAIL_FIELD_DESCRIPTIONS, EMAIL_FIELDS, EmailContentTypeSchema, type EmailDetail, EmailDetailSchema, ExcludeThreadHistorySchema } from '@mcp-z/email';
@@ -167,7 +167,7 @@ async function handler({ query, pageSize = DEFAULT_PAGE_SIZE, pageToken, fields,
     const message = error instanceof Error ? error.message : String(error);
     logger.error('gmail.message.search error', { error: message });
 
-    throw new McpError(ErrorCode.InternalError, `Error searching messages: ${message}`, {
+    throw new ProtocolError(ProtocolErrorCode.InternalError, `Error searching messages: ${message}`, {
       stack: error instanceof Error ? error.stack : undefined,
     });
   }

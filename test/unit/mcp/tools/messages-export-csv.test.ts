@@ -73,7 +73,7 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
     );
 
     // Validate success
-    const structured = (result as unknown as TypedToolResult<Output>)?.structuredContent?.result as Output | undefined;
+    const structured = ((result as unknown as TypedToolResult<Output>)?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
     assert.strictEqual(structured?.type, 'success', 'Expected success result');
     if (structured?.type !== 'success') return;
 
@@ -107,7 +107,7 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
     );
 
     // Validate success
-    const structured = (result as unknown as TypedToolResult<Output>)?.structuredContent?.result as Output | undefined;
+    const structured = ((result as unknown as TypedToolResult<Output>)?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
     assert.strictEqual(structured?.type, 'success', 'Expected success result');
     if (structured?.type !== 'success') return;
 
@@ -152,7 +152,7 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
 
     try {
       // Validate success
-      const structured = (result as unknown as TypedToolResult<Output>)?.structuredContent?.result as Output | undefined;
+      const structured = ((result as unknown as TypedToolResult<Output>)?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
       assert.strictEqual(structured?.type, 'success', 'Expected success result');
       if (structured?.type !== 'success') return;
 
@@ -187,7 +187,7 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
     );
 
     // Validate success
-    const structured = (result as unknown as TypedToolResult<Output>)?.structuredContent?.result as Output | undefined;
+    const structured = ((result as unknown as TypedToolResult<Output>)?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
     assert.strictEqual(structured?.type, 'success', 'Expected success result');
     if (structured?.type !== 'success') return;
     assert.ok(structured.rowCount >= 0, 'Should have row count');
@@ -228,7 +228,7 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
     );
 
     // Validate success
-    const structured = (result as unknown as TypedToolResult<Output>)?.structuredContent?.result as Output | undefined;
+    const structured = ((result as unknown as TypedToolResult<Output>)?.structuredContent as { result?: unknown } | undefined)?.result as Output | undefined;
     assert.strictEqual(structured?.type, 'success', 'Expected success result');
     assert.ok(structured, 'structured should be defined');
 

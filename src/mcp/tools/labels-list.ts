@@ -7,6 +7,7 @@ import type { ToolModule } from '@mcp-z/server';
 import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
 import { google } from 'googleapis';
 import { z } from 'zod';
+import { googleAuth } from '../../lib/google-auth.ts';
 
 // Schema for individual label items
 const LabelSchema = z.object({
@@ -47,7 +48,7 @@ async function handler(_: Input, extra: EnrichedExtra) {
   logger.info('gmail.labels.list called');
 
   try {
-    const gmail = google.gmail({ version: 'v1', auth: extra.authContext.auth });
+    const gmail = google.gmail({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
     const started = Date.now();
 
     // Fetch all labels from Gmail API

@@ -14,6 +14,7 @@ import { z } from 'zod';
 import { DEFAULT_PAGE_SIZE } from '../../constants.ts';
 import { extractBodyFromPayload } from '../../email/parsing/html-processing.ts';
 import { executeQuery as executeGmailQuery } from '../../email/querying/execute-query.ts';
+import { googleAuth } from '../../lib/google-auth.ts';
 import { GmailQueryParameterSchema, parseGmailQueryParameter } from '../../schemas/gmail-query-schema.ts';
 import type { StorageExtra } from '../../types.ts';
 
@@ -102,7 +103,7 @@ async function handler({ query, maxItems, filename, contentType, excludeThreadHi
       accountId: extra.authContext.accountId,
     });
 
-    const gmail = google.gmail({ version: 'v1', auth: extra.authContext.auth });
+    const gmail = google.gmail({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
 
     // Create CSV headers (all email fields)
     const csvHeaders = ['id', 'threadId', 'from', 'to', 'cc', 'bcc', 'subject', 'date', 'snippet', 'body', 'provider', 'labels'];

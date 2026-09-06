@@ -8,6 +8,7 @@ import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
 import { google } from 'googleapis';
 import { z } from 'zod';
 import { ensureLabelId } from '../../labels/gmail-labels.ts';
+import { googleAuth } from '../../lib/google-auth.ts';
 
 const inputSchema = z.object({
   id: z.coerce.string().trim().min(1).describe('Gmail message ID to add label to'),
@@ -47,7 +48,7 @@ async function handler({ id, label }: Input, extra: EnrichedExtra) {
   }
 
   try {
-    const gmail = google.gmail({ version: 'v1', auth: extra.authContext.auth });
+    const gmail = google.gmail({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
 
     const labelId = await ensureLabelId(gmail, 'me', label);
     await gmail.users.messages.modify({

@@ -9,6 +9,7 @@ import { type gmail_v1, google } from 'googleapis';
 import { z } from 'zod';
 import { extractBodyFromPayload, extractEmails, extractFrom } from '../../email/parsing/message-extraction.ts';
 import { toIsoUtc } from '../../lib/date-conversion.ts';
+import { googleAuth } from '../../lib/google-auth.ts';
 
 const inputSchema = z.object({
   id: z.coerce.string().trim().min(1).describe('Gmail message ID to retrieve'),
@@ -54,7 +55,7 @@ async function handler({ id, fields, contentType, excludeThreadHistory }: Input,
       throw new ProtocolError(ProtocolErrorCode.InvalidParams, 'Missing id');
     }
 
-    const gmail = google.gmail({ version: 'v1', auth: extra.authContext.auth });
+    const gmail = google.gmail({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
     const response = await gmail.users.messages.get({
       userId: 'me',
       id: id,

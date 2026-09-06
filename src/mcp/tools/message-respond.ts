@@ -10,6 +10,7 @@ import { google } from 'googleapis';
 import { z } from 'zod';
 import { extractEmails } from '../../email/parsing/headers-utils.ts';
 import { b64url } from '../../lib/base64-encoding.ts';
+import { googleAuth } from '../../lib/google-auth.ts';
 
 const inputSchema = z.object({
   id: z.coerce.string().trim().min(1).describe('Gmail message ID to reply to'),
@@ -45,7 +46,7 @@ async function handler({ id, body, contentType }: Input, extra: EnrichedExtra) {
   logger.info('gmail.message.respond called', { id, contentType });
 
   try {
-    const gmail = google.gmail({ version: 'v1', auth: extra.authContext.auth });
+    const gmail = google.gmail({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
 
     let full: unknown;
     try {

@@ -1,8 +1,7 @@
+import { type gmail_v1, gmail as gmailApi } from '@googleapis/gmail';
 import type { Logger } from '@mcp-z/mcp-gmail';
 import { mcp } from '@mcp-z/mcp-gmail';
 import assert from 'assert';
-import type { gmail_v1 } from 'googleapis';
-import { google } from 'googleapis';
 import type { Input } from '../../../../src/mcp/tools/message-respond.ts';
 import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
 import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
@@ -24,7 +23,7 @@ describe('message-respond tool', () => {
     const tool = mcp.toolFactories.messageRespond();
     const wrappedTool = middleware.withToolAuth(tool);
     handler = wrappedTool.handler;
-    sharedGmailClient = google.gmail({ version: 'v1', auth: auth });
+    sharedGmailClient = gmailApi({ version: 'v1', auth: auth });
   });
 
   it('respond replies to a message', async () => {

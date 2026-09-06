@@ -1,4 +1,4 @@
-import type { gmail_v1 } from 'googleapis';
+import type { gmail_v1 } from '@googleapis/gmail';
 import { setTimeout as delay } from 'timers/promises';
 
 export type GoogleApisLike = gmail_v1.Gmail;

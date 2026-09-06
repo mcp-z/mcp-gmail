@@ -1,4 +1,4 @@
-import type { gmail_v1 } from 'googleapis';
+import type { gmail_v1 } from '@googleapis/gmail';
 
 export async function ensureLabelId(gmail: gmail_v1.Gmail, userId: string, labelName: string): Promise<string> {
   // Built-in system labels: pass through by name

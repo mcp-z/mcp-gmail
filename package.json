@@ -67,6 +67,7 @@
     "version": "tsds version"
   },
   "dependencies": {
+    "@googleapis/gmail": "^18.0.0",
     "@mcp-z/email": "^1.0.0",
     "@mcp-z/oauth": "^2.0.0",
     "@mcp-z/oauth-google": "^2.0.1",
@@ -74,7 +75,6 @@
     "cors": "^2.0.0",
     "csv-stringify": "^6.0.0",
     "express": "^5.0.0",
-    "googleapis": "174.0.1",
     "keyv-file": "5.3.3",
     "keyv-registry": "^2.0.0",
     "module-root-sync": "^2.0.0",

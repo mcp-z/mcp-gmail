@@ -1,9 +1,8 @@
+import { type gmail_v1, gmail as gmailApi } from '@googleapis/gmail';
 import type { Logger } from '@mcp-z/mcp-gmail';
 import { mcp } from '@mcp-z/mcp-gmail';
 import type { TypedToolResult } from '@mcp-z/server';
 import assert from 'assert';
-import type { gmail_v1 } from 'googleapis';
-import { google } from 'googleapis';
 import type { Input, Output } from '../../../../src/mcp/tools/message-send.ts';
 import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
 import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
@@ -23,7 +22,7 @@ describe('Gmail message send tool (integration)', () => {
     const tool = mcp.toolFactories.messageSend();
     const wrappedTool = middleware.withToolAuth(tool);
     handler = wrappedTool.handler;
-    sharedGmailClient = google.gmail({ version: 'v1', auth: auth });
+    sharedGmailClient = gmailApi({ version: 'v1', auth: auth });
   });
 
   it('sends an email and returns success with message id', async () => {

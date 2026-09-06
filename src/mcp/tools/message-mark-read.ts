@@ -1,3 +1,4 @@
+import { gmail as gmailApi } from '@googleapis/gmail';
 import type { EnrichedExtra } from '@mcp-z/oauth-google';
 import { schemas } from '@mcp-z/oauth-google';
 
@@ -5,7 +6,6 @@ const { AuthRequiredBranchSchema } = schemas;
 
 import type { ToolModule } from '@mcp-z/server';
 import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
-import { google } from 'googleapis';
 import { z } from 'zod';
 import { googleAuth } from '../../lib/google-auth.ts';
 
@@ -40,7 +40,7 @@ async function handler({ id }: Input, extra: EnrichedExtra) {
   }
 
   try {
-    const gmail = google.gmail({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
+    const gmail = gmailApi({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
     await gmail.users.messages.modify({
       userId: 'me',
       id: id,

@@ -1,3 +1,4 @@
+import '../../lib/env-loader.ts';
 import assert from 'assert';
 import { filterClientSide, type GmailMessage, toRowFromGmail } from '../../../src/lib/messages-to-row.ts';
 

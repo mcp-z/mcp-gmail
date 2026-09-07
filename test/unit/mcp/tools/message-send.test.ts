@@ -1,3 +1,4 @@
+import '../../../lib/env-loader.ts';
 import { type gmail_v1, gmail as gmailApi } from '@googleapis/gmail';
 import type { Logger } from '@mcp-z/mcp-gmail';
 import { mcp } from '@mcp-z/mcp-gmail';

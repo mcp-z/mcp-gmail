@@ -1,3 +1,4 @@
+import '../lib/env-loader.ts';
 import main, { setup } from '@mcp-z/mcp-gmail';
 import assert from 'assert';
 

@@ -71,7 +71,7 @@
     "@mcp-z/email": "^1.0.0",
     "@mcp-z/oauth": "^2.0.0",
     "@mcp-z/oauth-google": "^2.0.1",
-    "@mcp-z/server": "^2.0.0",
+    "@mcp-z/server": "^2.1.0",
     "cors": "^2.0.0",
     "csv-stringify": "^6.0.0",
     "express": "^5.0.0",

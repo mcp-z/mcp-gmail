@@ -8,11 +8,11 @@ npm test
 
 Notes:
 - Tests run in the package context so Node will resolve `package.json` and dependencies correctly.
-- Live integration tests load credentials via Node's `--env-file`. Place them in `.env/test/gmail`.
+- Tests load credentials from this package's `.env.test`. Loading is done by `test/lib/env-loader.ts`, which must be the first import in every test file.
 - Helpers used only for tests should live under `test/lib/` so they are executed within the package context.
 # Service‑backed unit tests: servers/mcp-gmail
 
-These examples exercise real Google APIs via the normal unit test runner using injected dependencies. Tests run unconditionally with credentials loaded from the repository `.env.test` by the package test script.
+These examples exercise real Google APIs via the normal unit test runner using injected dependencies. Tests run unconditionally with credentials loaded from this package's own `.env.test` by `test/lib/env-loader.ts`.
 
 Prerequisites
 - Node >= 18
@@ -25,7 +25,7 @@ Environment variables (from `.env.test`)
 
 Note: Token storage location is automatically determined using zero-config pattern. Use the package helper `test/lib/create-middleware-context.ts` to obtain shared package-level tokens stored under the package-local `.tokens/{environment}/{provider}/` structure. Tests should share the package token store; per-test token isolation (creating distinct token files per test) is not permitted. If strict isolation is required for a specific workflow, open an RFC so we can design a supported pattern that includes automatic teardown and CI safeguards.
 
-How to run (single test) Ensure you have a `.env.test` file at the repository root with the required credentials, then run:
+How to run (single test) Ensure you have a `.env.test` file in the package root with the required credentials, then run:
 
 tsds test:node test/unit/tools/<tool>.test.js
 

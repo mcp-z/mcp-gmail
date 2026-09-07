@@ -9,6 +9,7 @@
  * 5. Use registry.close() for graceful close
  */
 
+import '../lib/env-loader.ts';
 import { createServerRegistry, type ManagedClient, type ServerRegistry } from '@mcp-z/client';
 import assert from 'assert';
 

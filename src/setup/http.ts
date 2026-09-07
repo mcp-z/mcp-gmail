@@ -1,4 +1,4 @@
-import { composeMiddleware, connectHttp, createFileServingRouter, McpServer, registerPrompts, registerResources, registerTools } from '@mcp-z/server';
+import { composeMiddleware, connectHttp, createFileServingRouter, defaultCacheHints, McpServer, registerPrompts, registerResources, registerTools } from '@mcp-z/server';
 import cors from 'cors';
 import express from 'express';
 import type { RuntimeOverrides, ServerConfig } from '../types.ts';
@@ -25,7 +25,7 @@ export async function createHTTPServer(config: ServerConfig, overrides?: Runtime
   // session never re-routes a method onto the other era - so one shared instance pins itself
   // to whichever revision reaches it first and answers the other with -32601.
   const buildServer = () => {
-    const mcpServer = new McpServer({ name: config.name, version: config.version });
+    const mcpServer = new McpServer({ name: config.name, version: config.version }, { cacheHints: defaultCacheHints });
     registerTools(mcpServer, filteredTools);
     registerResources(mcpServer, composed.resources);
     registerPrompts(mcpServer, prompts);

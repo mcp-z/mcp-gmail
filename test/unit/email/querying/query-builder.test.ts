@@ -1,3 +1,4 @@
+import '../../../lib/env-loader.ts';
 import assert from 'assert';
 import { toGmailQuery } from '../../../../src/email/querying/query-builder.ts';
 

@@ -1,3 +1,4 @@
+import '../../../lib/env-loader.ts';
 import { mcp } from '@mcp-z/mcp-gmail';
 import type { TypedToolResult } from '@mcp-z/server';
 import assert from 'assert';

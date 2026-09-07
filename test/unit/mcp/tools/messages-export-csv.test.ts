@@ -1,3 +1,4 @@
+import '../../../lib/env-loader.ts';
 import type { Logger, StorageExtra } from '@mcp-z/mcp-gmail';
 import { mcp } from '@mcp-z/mcp-gmail';
 import type { EnrichedExtra } from '@mcp-z/oauth-google';

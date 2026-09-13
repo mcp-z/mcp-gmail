@@ -67,7 +67,7 @@
     "version": "tsds version"
   },
   "dependencies": {
-    "@googleapis/gmail": "^18.0.0",
+    "@googleapis/gmail": "^21.0.0",
     "@mcp-z/email": "^1.0.0",
     "@mcp-z/oauth": "^2.0.0",
     "@mcp-z/oauth-google": "^2.0.1",

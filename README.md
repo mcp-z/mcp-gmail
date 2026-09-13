@@ -2,6 +2,8 @@
 
 MCP server for Gmail integration with OAuth authentication, message search, batch operations, and Google Sheets export
 
+Requires Node.js >=20. The examples use `npx`, included with npm, to run this server and [@mcp-z/cli](https://github.com/mcp-z/cli).
+
 ## Common uses
 
 - Search and read messages
@@ -11,6 +13,11 @@ MCP server for Gmail integration with OAuth authentication, message search, batc
 ## Transports
 
 MCP supports stdio and HTTP.
+
+Both the 2025 and 2026-07-28 protocol revisions are served, over either transport, from the same
+server. Your client negotiates whichever it speaks. A 2025 client keeps working with no change,
+and support for it is not being dropped. The 2026-07-28 revision is stateless, so a client speaking
+it sends no `initialize` handshake and carries no session id.
 
 **Stdio**
 ```json
@@ -58,7 +65,7 @@ MCP supports stdio and HTTP.
 
 ## OAuth modes
 
-Configure via environment variables or the `env` block in `.mcp.json`. See `server.json` for the full list of options.
+Configure via environment variables or the `env` block in `.mcp.json`. The configuration reference below lists every option.
 
 ### Loopback OAuth (default)
 
@@ -88,9 +95,9 @@ Example (http) - Create .mcp.json:
 ```json
 {
   "mcpServers": {
-    "outlook": {
+    "gmail": {
       "type": "http",
-      "url": "http://localhost:3000",
+      "url": "http://localhost:3000/mcp",
       "start": {
         "command": "npx",
         "args": ["-y", "@mcp-z/mcp-gmail", "--port=3000"],
@@ -105,7 +112,7 @@ Example (http) - Create .mcp.json:
 
 Local (default): omit REDIRECT_URI → ephemeral loopback. Cloud: set REDIRECT_URI to your public /oauth/callback and expose the service publicly.
 
-Note: start block is a helper in "npx @mcp-z/cli up" for starting an http server from your .mpc.json. See [@mcp-z/cli](https://github.com/mcp-z/cli) for details.
+Note: the `start` block is a helper in `npx @mcp-z/cli up` for starting an HTTP server from your `.mcp.json`. See [@mcp-z/cli](https://github.com/mcp-z/cli) for details.
 
 
 ### Service account
@@ -160,11 +167,11 @@ HTTP only. Requires a public base URL. CSV export and `/files` are disabled in D
 ## How to use
 
 ```bash
-# List tools
-mcp-z inspect --servers gmail --tools
+# Start the configured server and list its tools
+npx -y @mcp-z/cli inspect --servers gmail --tools
 
-# Call a tool
-mcp-z call gmail message-search '{"query":"from:alice@example.com"}'
+# Call a tool after authorizing Gmail
+npx -y @mcp-z/cli call-tool gmail message-search '{"query":"from:alice@example.com"}'
 ```
 
 ## Tools
@@ -192,7 +199,7 @@ mcp-z call gmail message-search '{"query":"from:alice@example.com"}'
 
 ## Configuration reference
 
-See `server.json` for all supported environment variables, CLI arguments, and defaults.
+See [`server.json`](https://github.com/mcp-z/mcp-gmail/blob/master/server.json) for all supported environment variables, CLI arguments, and defaults.
 
 ## Storage backends
 
@@ -210,6 +217,6 @@ TOKEN_STORE_URI=redis://localhost:6379 mcp-gmail
 
 A protocol whose adapter is missing fails at startup naming the package to install.
 
-### Documentation
+## Documentation
 
 [API Docs](https://mcp-z.github.io/mcp-gmail)

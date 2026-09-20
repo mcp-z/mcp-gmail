@@ -1,4 +1,5 @@
 import '../../../lib/env-loader.ts';
+import { fileURLToPath } from 'node:url';
 import type { Logger, StorageExtra } from '@mcp-z/mcp-gmail';
 import { mcp } from '@mcp-z/mcp-gmail';
 import type { EnrichedExtra } from '@mcp-z/oauth-google';
@@ -240,12 +241,11 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
     // Verify URI format
     const uri = structured.uri;
     assert.ok(uri.startsWith('file://'), 'URI should start with file://');
-    assert.ok(path.isAbsolute(uri.replace('file://', '')), 'URI should contain absolute path');
-    assert.ok(uri.includes(testStorageDir), 'URI should include resource store path');
-    assert.ok(uri.includes(structured.filename), 'URI should include filename');
+    const filePath = fileURLToPath(uri);
+    const expectedFilePath = path.join(testStorageDir, structured.filename);
+    assert.strictEqual(filePath, expectedFilePath, 'URI should point to the expected file path');
 
     // Verify file exists at the URI path
-    const filePath = uri.replace('file://', '');
-    assert.strictEqual(existsSync(filePath), true, 'File should exist at URI path');
+    assert.strictEqual(existsSync(expectedFilePath), true, 'File should exist at URI path');
   });
 });

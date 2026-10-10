@@ -8,7 +8,7 @@ A few conventions here differ from what you might expect:
 
 - **Breaking changes over compatibility.** This project has no compatibility burden yet. Do not add back-compat layers, migration utilities, or wrappers for deprecated APIs - change the API cleanly and bump the major.
 - **Keep it approachable.** This is a small community project, not an enterprise codebase. Prefer the simplest solution that fits in the existing files over new abstractions, frameworks, or shared infrastructure.
-- **Tests run against real services, not mocks.** Suites call live provider APIs with real credentials, so you need your own test account configured (copy `.env.test.example` to `.env.test`). A test that fails on credentials is reported, not skipped or loosened.
+- **Tests run against real services, not mocks.** Suites call live provider APIs with real credentials, so you need your own test account configured through the shell, CI, or an optional `.env.test` file copied from `.env.test.example`. File values override matching inherited values. A test that fails on credentials is reported, not skipped or loosened.
 - **Never write to stdout in server code.** MCP speaks JSON-RPC over stdio; a stray `console.log` corrupts the protocol stream. Use the injected logger, which writes to stderr.
 - **Test scratch goes in the package's gitignored `.tmp/`**, never `os.tmpdir()`.
 

@@ -12,42 +12,78 @@
 import '../lib/env-loader.ts';
 import { createServerRegistry, type ManagedClient, type ServerRegistry } from '@mcp-z/client';
 import assert from 'assert';
+import { randomUUID } from 'crypto';
+import * as fs from 'fs';
+import { safeRmSync } from 'fs-remove-compat';
+import * as path from 'path';
+import { requiredEnv } from 'portable-env';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { throwFailures } from '../lib/throw-failures.ts';
 
 describe('Gmail Server Spawn Integration', () => {
   let client: ManagedClient;
-  let _registry: ServerRegistry;
+  let registry: ServerRegistry | undefined;
+  let projectDir: string | undefined;
+  let spawnAttempted = false;
 
   before(async () => {
-    // Spawn Gmail server using createServerRegistry
-    _registry = createServerRegistry(
+    const clientId = requiredEnv('GOOGLE_CLIENT_ID');
+    const serverRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+    const serverPath = path.join(serverRoot, 'bin/server.js');
+
+    // The discovered project owns logs and stores instead of the user's home directory.
+    projectDir = path.join(serverRoot, '.tmp', `gmail-spawn-test-${randomUUID()}`);
+    fs.mkdirSync(projectDir, { recursive: true });
+    fs.writeFileSync(path.join(projectDir, '.mcp.json'), '{ "mcpServers": {} }\n');
+    const stateDir = path.join(projectDir, '.mcp-z');
+
+    spawnAttempted = true;
+    registry = createServerRegistry(
       {
         gmail: {
-          command: 'node',
-          args: ['bin/server.js', '--headless'],
+          command: process.execPath,
+          args: [serverPath, '--headless', '--stdio'],
           env: {
             NODE_ENV: 'test',
-            GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
+            GOOGLE_CLIENT_ID: clientId,
             GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || '',
             HEADLESS: 'true',
             LOG_LEVEL: 'error',
+            TOKEN_STORE_URI: pathToFileURL(path.join(stateDir, 'tokens.json')).href,
+            DCR_STORE_URI: pathToFileURL(path.join(stateDir, 'dcr.json')).href,
+            RESOURCE_STORE_URI: pathToFileURL(path.join(stateDir, 'files')).href,
           },
         },
       },
-      { cwd: process.cwd() }
+      { cwd: projectDir }
     );
 
-    // Connect MCP client
-    client = await _registry.connect('gmail');
+    client = await registry.connect('gmail');
   });
 
   after(async () => {
-    if (client) {
-      await client.close();
+    const failures: unknown[] = [];
+    // The registry owns both the client and the child; only its resolved close proves exit.
+    let childClosed = !spawnAttempted;
+    if (registry) {
+      try {
+        const result = await registry.close();
+        childClosed = true;
+        assert.deepStrictEqual({ timedOut: result.timedOut, killedCount: result.killedCount }, { timedOut: false, killedCount: 0 }, 'Server should shut down cooperatively');
+      } catch (error) {
+        failures.push(error);
+      }
     }
-
-    if (_registry) {
-      await _registry.close();
+    if (projectDir && childClosed) {
+      try {
+        safeRmSync(projectDir, { recursive: true, force: true });
+      } catch (error) {
+        failures.push(error);
+      }
+    } else if (projectDir) {
+      failures.push(new Error(`Server closure unconfirmed; retained scratch ${projectDir}`));
     }
+    throwFailures('Gmail spawn test teardown failed', failures);
   });
 
   it('should connect to Gmail server', async () => {

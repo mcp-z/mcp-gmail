@@ -1,5 +1,5 @@
 import '../../../lib/env-loader.ts';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Logger, StorageExtra } from '@mcp-z/mcp-gmail';
 import { mcp } from '@mcp-z/mcp-gmail';
 import type { EnrichedExtra } from '@mcp-z/oauth-google';
@@ -18,12 +18,12 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
   const tmpDir = path.join(process.cwd(), '.tmp');
   const testStorageDir = path.join(tmpDir, 'test-export-storage');
   const _storageContext = {
-    resourceStoreUri: `file://${testStorageDir}`,
+    resourceStoreUri: pathToFileURL(testStorageDir).href,
     baseUrl: 'http://localhost:3000',
     transport: { type: 'http', port: 3000 },
   } as const;
   const stdioStorageContext = {
-    resourceStoreUri: `file://${testStorageDir}`,
+    resourceStoreUri: pathToFileURL(testStorageDir).href,
     transport: { type: 'stdio' },
   } as const;
 
@@ -126,7 +126,7 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
     assert.strictEqual(existsSync(nestedStorageDir), false, 'Nested resource store directory should not exist initially');
 
     const nestedStorageContext = {
-      resourceStoreUri: `file://${nestedStorageDir}`,
+      resourceStoreUri: pathToFileURL(nestedStorageDir).href,
       baseUrl: 'http://localhost:3000',
       transport: { type: 'http', port: 3000 },
     } as const;

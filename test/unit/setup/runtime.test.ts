@@ -2,9 +2,9 @@ import '../../lib/env-loader.ts';
 import type { ServerConfig } from '@mcp-z/mcp-gmail';
 import { setup } from '@mcp-z/mcp-gmail';
 import assert from 'assert';
+import * as path from 'path';
 
 describe('setup.validateStorageConfig (gmail)', () => {
-  // TODO: Add exhaustive DCR matrix tests for tool filtering and /files gating.
   it('warns and skips validation in DCR when resourceStoreUri is set', () => {
     const warnings: string[] = [];
     const logger = {
@@ -110,5 +110,25 @@ describe('setup.validateStorageConfig (gmail)', () => {
     assert.throws(() => setup.validateStorageConfig(config, logger), {
       message: 'gmail-messages-export-csv: HTTP transport requires either baseUrl in server config or port in transport config. This is a server configuration error - please provide --base-url or --port.',
     });
+  });
+});
+
+describe('setup.createDefaultRuntime (gmail)', () => {
+  it('rejects DCR without an HTTP transport', async () => {
+    const config: ServerConfig = {
+      name: 'test-server',
+      version: '0.0.0-test',
+      transport: { type: 'stdio' },
+      // Never created: the guard rejects before any runtime setup touches baseDir.
+      baseDir: path.resolve('.tmp', 'runtime-dcr-guard'),
+      clientId: 'test-client-id',
+      headless: true,
+      logLevel: 'error',
+      auth: 'dcr',
+      resourceStoreUri: '',
+      repositoryUrl: 'https://github.com/mcp-z/mcp-gmail',
+    };
+
+    await assert.rejects(setup.createDefaultRuntime(config), { message: 'DCR mode requires an HTTP transport' });
   });
 });

@@ -1,63 +1,23 @@
-This folder contains the Gmail package's tests.
-
-Run tests for this package from the package directory:
+Run test commands from the package root. The package supports Node >=20; use a current Node release for the interactive setup script.
 
 ```bash
+npm test                 # Full suite, including live Gmail APIs
+npm run test:engines     # Full suite across supported Node versions
+npm run test:ci          # Credential-free selection, excludes test/integration/**
+npm run test:ci:engines  # Same selection across supported Node versions
+```
+
+The runner loads `test/lib/env-loader.ts` before tests. It optionally loads `.env.test` through `portable-env`; file values override matching inherited values. The shell or CI can supply values without a file.
+
+Live tests require `GOOGLE_CLIENT_ID`, a configured test account, valid stored OAuth tokens, and access to Google APIs. `GOOGLE_CLIENT_SECRET` is optional for public loopback clients. To authorize a local test account interactively, run:
+
+```bash
+npm run test:setup
 npm test
 ```
 
-Notes:
-- Tests run in the package context so Node will resolve `package.json` and dependencies correctly.
-- Tests load credentials from this package's `.env.test`. Loading is done by `test/lib/env-loader.ts`, which must be the first import in every test file.
-- Helpers used only for tests should live under `test/lib/` so they are executed within the package context.
-# Service‑backed unit tests: servers/mcp-gmail
+`test/lib/create-middleware-context.ts` exports the default `createMiddlewareContext` helper and validates exactly one account in the package-local `.tokens/store.json`. `test/lib/create-extra.ts` exports `createExtra`. Tests share the package token store and keep test-only helpers in `test/lib/`.
 
-These examples exercise real Google APIs via the normal unit test runner using injected dependencies. Tests run unconditionally with credentials loaded from this package's own `.env.test` by `test/lib/env-loader.ts`.
+For an unattended live run, dispatch the **Live provider tests** workflow from `master`. It runs the full non-interactive suite on the selected Linux or Windows runner using the repository's `live-test` environment. See [CONTRIBUTING.md](../CONTRIBUTING.md#live-provider-tests) for required secrets and token setup.
 
-Prerequisites
-- Node >= 18
-- Google OAuth credentials for a test account (set as environment variables below)
-- Network access to Google APIs
-
-Environment variables (from `.env.test`)
-- GOOGLE_CLIENT_ID: OAuth client ID
-- GOOGLE_CLIENT_SECRET: OAuth client secret
-
-Note: Token storage location is automatically determined using zero-config pattern. Use the package helper `test/lib/create-middleware-context.ts` to obtain shared package-level tokens stored under the package-local `.tokens/{environment}/{provider}/` structure. Tests should share the package token store; per-test token isolation (creating distinct token files per test) is not permitted. If strict isolation is required for a specific workflow, open an RFC so we can design a supported pattern that includes automatic teardown and CI safeguards.
-
-How to run (single test) Ensure you have a `.env.test` file in the package root with the required credentials, then run:
-
-tsds test:node test/unit/tools/<tool>.test.js
-
-How to run (all service‑backed tests in this package) Ensure `.env.test` contains valid credentials, then run:
-
-tsds test:node test/unit
-
-Recommended local pattern
-1. Use the package `test/lib/create-middleware-context.ts` helper to obtain dependencies.
-   The helper will place tokens under the package-local `.tokens/{environment}/{provider}/` structure and tests
-   should share that token store. Example:
-
-```ts
-import { createMiddlewareContext, createExtra } from './test/lib/create-middleware-context.ts';
-
-const middleware = await createMiddlewareContext();
-const extra = createExtra();
-```
-
-2. Start the test with live calls enabled and ensure `GOOGLE_CLIENT_ID` and
-   `GOOGLE_CLIENT_SECRET` are provided via `.env.test` or CI environment.
-
-3. Keep tests simple: create a small resource, exercise the tool, verify results
-   via the API when possible, and clean up external resources (delete messages,
-   files, etc.) in teardown. Do not create per-test token files unless an
-   approved RFC introduces a controlled pattern for that behavior.
-
-Notes & security
-- Never commit real credentials or token files to the repo. Prefer using a short-lived test account and restrict scope.
-- If CI needs to run service‑backed tests, provision secrets in the CI environment (locked) and run these tests in a separate job with limited lifetime and access.
-- Document any manual steps required (for example granting test account access to specific mailboxes).
-
-Example: run a single test file with live calls Ensure `.env.test` contains valid credentials and run: tsds test:node test/unit/gmail.test.js
-
-Add package-specific notes below as needed.
+Keep credentials and token files out of Git. Live tests can create or change mail; use a dedicated test account and clean up test resources.

@@ -8,34 +8,13 @@ A few conventions here differ from what you might expect:
 
 - **Breaking changes over compatibility.** This project has no compatibility burden yet. Do not add back-compat layers, migration utilities, or wrappers for deprecated APIs - change the API cleanly and bump the major.
 - **Keep it approachable.** This is a small community project, not an enterprise codebase. Prefer the simplest solution that fits in the existing files over new abstractions, frameworks, or shared infrastructure.
-- **Tests run against real services, not mocks.** Suites call live provider APIs with real credentials, so you need your own test account configured (copy `.env.test.example` to `.env.test`). A test that fails on credentials is reported, not skipped or loosened.
+- **Tests run against real services, not mocks.** Suites call live provider APIs with real credentials, so you need your own test account configured through the shell, CI, or an optional `.env.test` file copied from `.env.test.example`. File values override matching inherited values. A test that fails on credentials is reported, not skipped or loosened.
 - **Never write to stdout in server code.** MCP speaks JSON-RPC over stdio; a stray `console.log` corrupts the protocol stream. Use the injected logger, which writes to stderr.
 - **Test scratch goes in the package's gitignored `.tmp/`**, never `os.tmpdir()`.
 
 ## Branches
 
-Two lines. `master` is the current major and where all new work goes; `support/1.x` maintains the 1.x line for consumers who have not migrated.
-
-    master            2.x    current    the v2 MCP SDK, both protocol eras
-    support/1.x       1.x    security fixes only, cut at v1.1.3
-
-Check which one you are on before editing:
-
-```bash
-git rev-parse --abbrev-ref HEAD
-```
-
-Features, dependency migrations and API changes go to `master` only. A security fix that also affects 1.x is **cherry-picked** to `support/1.x` — never merge the branches into each other, in either direction.
-
-This file is the 1.x line's guide too. It lives only on `master` so it cannot drift between the lines; from `support/1.x`, read it with `git show master:CONTRIBUTING.md`.
-
-Releasing `support/1.x` carries one trap. `npm publish` moves `latest` to the highest version published, so a 1.x release made after the next major exists must name its dist-tag or every bare `npm install @mcp-z/mcp-gmail` serves the old line:
-
-```bash
-npm publish --tag support-1
-```
-
-`prepublishOnly` refuses a bare publish from `support/*`, so forgetting the flag fails the publish rather than moving `latest`. `npm dist-tag add @mcp-z/mcp-gmail@<version> latest` reverses a mistake at any time.
+`master` is the only maintained release line. The 1.x line is retired and receives no fixes. All changes target `master`.
 
 ## Pre-Commit Commands
 
@@ -69,19 +48,28 @@ See `README.md` for package overview and usage.
 
 ## GitHub Actions
 
-CI follows the Linux/Windows template used by each-package: Node 26, `npm ci`, `prepublishOnly`, a current-runtime test run, and the supported-engine sweep. macOS coverage runs locally. Pull requests receive no provider credentials.
+Trusted master CI uses Node 26, `npm ci`, `prepublishOnly`, the full current-runtime suite and the supported-engine sweep. Ubuntu completes before Windows starts. The calling workflow uses the same commit's `.github/workflows/live.yml`; manual dispatch uses that existing workflow too. macOS coverage runs locally.
 
-`npm run test:ci` and `npm run test:ci:engines` run the credential-free selection. They exclude `test/integration/**`. These files require provider configuration, live services, or interactive consent; some also contain local checks. Their exclusion is a coverage gap until the separate live-service automation is provisioned.
+Pull requests receive no provider credentials. They run the existing exports, unit tests, local HTTP suite and both stdio discovery suites through the canonical commands on Linux and Windows:
 
-`npm test` and `npm run test:engines` retain full discovery. CI sets `TEST_INCLUDE_MANUAL=false`; consent tests require a person and run locally with `TEST_INCLUDE_MANUAL=true`. A green credential-free check does not certify live-provider behavior. Release evidence must include the configured live suites and relevant manual OAuth flows.
+```bash
+npm test -- "test/exports/*.test.*" "test/unit/**/*.test.ts" "test/integration/http-server.test.ts" "test/integration/server.test.ts" "test/integration/gmail-server-spawn.test.ts"
+npm run test:engines -- "test/exports/*.test.*" "test/unit/**/*.test.ts" "test/integration/http-server.test.ts" "test/integration/server.test.ts" "test/integration/gmail-server-spawn.test.ts"
+```
 
-### Live provider tests
+The PR job supplies the nonsecret `GOOGLE_CLIENT_ID=test-client-id` and `HEADLESS=true` required for local server startup. The stdio suites issue discovery requests without invoking provider tools and own private project/store paths. The HTTP suite uses explicit local configuration. A green PR check establishes local coverage only.
 
-Run the **Live provider tests** workflow from master, selecting Linux or Windows. It runs the full non-interactive suite once with `--bail`, without an engine matrix or automatic retries. Live runs are manual while request usage and service quotas are being measured. A green PR check covers only the credential-free selection above.
+`npm test`, `npm run test:engines` and both `test:ci` aliases retain full discovery without exclusions or script-level environment preloads. Each configured TypeScript test entrypoint imports its environment loader first. The optional `.env.test` overrides matching inherited values; CI can supply values without that file. JavaScript export smokes need no environment setup.
+
+### Trusted tests
+
+The trusted workflow runs `npm test -- --bail` and `npm run test:engines -- --bail`. Every unattended provider suite runs against the existing Gmail test account. Current Node plus each supported major-even engine runs serially per platform. The engine tool continues later engines after a failed runtime; `--bail` stops that runtime's suite. Failed Ubuntu prevents Windows from starting. No automatic retry is configured.
+
+Interactive consent remains the local `npm run test:setup` command. Gmail has no authored browser-consent test gate; `TEST_INCLUDE_MANUAL=false` is retained in CI's existing token setup.
 
 Live tests use a process-wide strict pace of one token-provider call every 1.2 seconds. The summary counts token-provider calls, not exact API requests or Gmail quota units. At 50 calls per minute, 100-unit methods would use 5,000 units per minute against Gmail's documented default of 6,000 units per user per minute. Existing projects may have different limits; see [Gmail API quotas](https://developers.google.com/workspace/gmail/api/reference/quota).
 
-This repository owns its `live-test` GitHub environment, restricted to master, and its own live-job concurrency group. There is no cross-repository coordinator. Concurrent runs in different repositories can still share provider quotas; avoid starting several against the same account at once. Browser consent tests remain local and opt-in.
+This repository owns its `live-test` GitHub environment, restricted to master. The credential-consuming job uses the shared `live-provider-tests` concurrency group with `queue: max` and `cancel-in-progress: false`. Automatic and manual jobs hold this lock through seed, tests, persistence and cleanup. Queued jobs read environment secrets when they start, after preceding jobs persist replacement credentials. PR cancellation uses a separate group. There is no cross-repository coordinator; coordinate any shared account, refresh grant or quota before starting another repository's provider job.
 
 Configure these individual environment secrets from the existing test configuration and token stores:
 

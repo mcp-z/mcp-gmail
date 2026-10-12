@@ -1,36 +1,71 @@
 import '../lib/env-loader.ts';
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { createServerRegistry, type ManagedClient, type ServerRegistry } from '@mcp-z/client';
 import assert from 'assert';
+import { randomUUID } from 'crypto';
+import * as fs from 'fs';
+import { safeRmSync } from 'fs-remove-compat';
 import * as path from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { throwFailures } from '../lib/throw-failures.ts';
 
 describe('Gmail MCP Server Component Tests', () => {
-  let client: Client;
-  let transport: StdioClientTransport;
+  let client: ManagedClient;
+  let registry: ServerRegistry | undefined;
+  let projectDir: string | undefined;
+  let spawnAttempted = false;
 
   before(async () => {
-    // Resolve paths relative to server root
-    const serverRoot = path.resolve(import.meta.dirname, '../..');
-    const envFile = path.join(serverRoot, '.env.test');
+    const serverRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
     const serverPath = path.join(serverRoot, 'bin/server.js');
 
-    // StdioClientTransport spawns the server automatically
-    transport = new StdioClientTransport({
-      command: 'node',
-      args: [`--env-file=${envFile}`, serverPath],
-      env: {
-        ...process.env,
-        NODE_ENV: 'test',
-      } as Record<string, string>,
-    });
+    // The server places .mcp-z/ (logs, stores) beside the .mcp.json it discovers from its cwd.
+    projectDir = path.join(serverRoot, '.tmp', `server-test-${randomUUID()}`);
+    fs.mkdirSync(projectDir, { recursive: true });
+    fs.writeFileSync(path.join(projectDir, '.mcp.json'), '{ "mcpServers": {} }\n');
+    const stateDir = path.join(projectDir, '.mcp-z');
 
-    client = new Client({ name: 'test-client', version: '1.0.0' }, { capabilities: {} });
-
-    await client.connect(transport);
+    spawnAttempted = true;
+    registry = createServerRegistry(
+      {
+        server: {
+          command: process.execPath,
+          args: [serverPath],
+          env: {
+            NODE_ENV: 'test',
+            TOKEN_STORE_URI: pathToFileURL(path.join(stateDir, 'tokens.json')).href,
+            DCR_STORE_URI: pathToFileURL(path.join(stateDir, 'dcr.json')).href,
+            RESOURCE_STORE_URI: pathToFileURL(path.join(stateDir, 'files')).href,
+          },
+        },
+      },
+      { cwd: projectDir }
+    );
+    client = await registry.connect('server');
   });
 
   after(async () => {
-    await client.close();
+    const failures: unknown[] = [];
+    // registry.close() owns the client and the child; only a resolved close proves the child has exited.
+    let childClosed = !spawnAttempted;
+    if (registry) {
+      try {
+        const result = await registry.close();
+        childClosed = true;
+        assert.deepStrictEqual({ timedOut: result.timedOut, killedCount: result.killedCount }, { timedOut: false, killedCount: 0 }, 'Server should shut down cooperatively');
+      } catch (error) {
+        failures.push(error);
+      }
+    }
+    if (projectDir && childClosed) {
+      try {
+        safeRmSync(projectDir, { recursive: true, force: true });
+      } catch (error) {
+        failures.push(error);
+      }
+    } else if (projectDir) {
+      failures.push(new Error(`Server closure unconfirmed; retained scratch ${projectDir}`));
+    }
+    throwFailures('Server test teardown failed', failures);
   });
 
   describe('MCP Protocol Component Testing', () => {

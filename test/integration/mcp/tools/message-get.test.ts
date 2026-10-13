@@ -7,7 +7,7 @@ import assert from 'assert';
 import type { Input, Output } from '../../../../src/mcp/tools/message-get.ts';
 import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
 import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
-import { createTestMessage, deleteTestMessage } from '../../../lib/message-helpers.ts';
+import { createStoredTestMessage, deleteTestMessage } from '../../../lib/message-helpers.ts';
 import waitForMessage from '../../../lib/wait-for-message.ts';
 
 describe('gmail-message-get tests', () => {
@@ -30,7 +30,7 @@ describe('gmail-message-get tests', () => {
 
     // Create a small pool of shared test messages to reuse across tests
     for (let i = 0; i < 2; i++) {
-      const messageId = await createTestMessage(client, {
+      const messageId = await createStoredTestMessage(client, {
         subject: `Shared Get Test Message ${i + 1} ${Date.now()}`,
         body: `This is shared test message ${i + 1} for get operations`,
       });
@@ -98,7 +98,7 @@ describe('gmail-message-get tests', () => {
       const createdIds: string[] = [];
 
       try {
-        const sentId = await createTestMessage(gmail, { subject: 'Test Subject', body: 'Test body content' });
+        const sentId = await createStoredTestMessage(gmail, { subject: 'Test Subject', body: 'Test body content' });
         createdIds.push(sentId);
         await waitForMessage(gmail, sentId, { interval: 200, timeout: 8000 });
 
@@ -134,7 +134,7 @@ describe('gmail-message-get tests', () => {
       const createdIds: string[] = [];
 
       try {
-        const sentId = await createTestMessage(gmail);
+        const sentId = await createStoredTestMessage(gmail);
         createdIds.push(sentId);
         await waitForMessage(gmail, sentId, { interval: 200, timeout: 8000 });
 

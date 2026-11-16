@@ -73,15 +73,17 @@
     "@mcp-z/email": "^1.0.0",
     "@mcp-z/oauth": "^2.0.0",
     "@mcp-z/oauth-google": "^2.0.1",
-    "@mcp-z/server": "^2.2.0",
+    "@mcp-z/server": "^2.3.0",
     "cors": "^2.0.0",
     "csv-stringify": "^6.0.0",
     "express": "^5.0.0",
     "keyv-file": "5.3.3",
     "keyv-registry": "^2.0.0",
+    "libmime": "^5.6.4",
     "module-root-sync": "^2.0.0",
     "node-html-parser": "^9.0.1",
     "pino": "^10.0.0",
+    "postal-mime": "^4.2.1",
     "zod": "^4.2.0"
   },
   "devDependencies": {

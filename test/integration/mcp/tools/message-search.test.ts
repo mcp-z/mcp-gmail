@@ -10,7 +10,7 @@ import type { Input, Output } from '../../../../src/mcp/tools/message-search.ts'
 import { assertObjectsShape } from '../../../lib/assertions.ts';
 import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
 import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
-import { createTestMessage, deleteTestMessage } from '../../../lib/message-helpers.ts';
+import { createStoredTestMessage, deleteTestMessage } from '../../../lib/message-helpers.ts';
 import waitForMessage from '../../../lib/wait-for-message.ts';
 import waitForSearch from '../../../lib/wait-for-search.ts';
 
@@ -40,7 +40,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
 
     // Create a small pool of shared test messages to reuse across tests
     for (let i = 0; i < 3; i++) {
-      const messageId = await createTestMessage(client, {
+      const messageId = await createStoredTestMessage(client, {
         subject: `Shared Test Message ${i + 1} ${Date.now()}`,
         body: `This is shared test message ${i + 1} for reducing API calls`,
       });
@@ -82,7 +82,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
     before(async () => {
       subject = `Query-Format-Subject-${Date.now()}`;
       body = `Query format body ${Date.now()}`;
-      messageId = await createTestMessage(client, { subject, body });
+      messageId = await createStoredTestMessage(client, { subject, body });
       await waitForMessage(client, messageId, { interval: 200, timeout: 10000 });
       await waitForSearch(client, { subject }, { expectedId: messageId, timeout: 10000 });
     });
@@ -405,14 +405,10 @@ describe('gmail-message-search comprehensive pagination tests', () => {
       const phrase = `ci-quoted-${Date.now()} special offer`;
       const rawQuery = `"${phrase}"`; // For direct Gmail API verification
 
-      // Create a minimal test message with the phrase in the subject and record it for close
-      const sentId = await createTestMessage(gmail, { subject: phrase, body: `body for ${phrase}` });
-      // record for close
-      createdIds.push(sentId);
-      // Wait for message to propagate to search index
-      await waitForMessage(gmail, sentId, { interval: 200, timeout: 10000 });
-
       try {
+        const sentId = await createStoredTestMessage(gmail, { subject: phrase, body: `body for ${phrase}` });
+        createdIds.push(sentId);
+        await waitForMessage(gmail, sentId, { interval: 200, timeout: 10000 });
         // Test that fuzzyPhrase generates correct Gmail query syntax
         // Poll the tool handler until the quoted search result appears (Gmail indexing can lag)
         const timeoutMs = 15000;
@@ -713,7 +709,7 @@ describe('gmail-message-search comprehensive pagination tests', () => {
         // Create a test message for consistent testing
         const testSubject = `Integration Test Fields ${Date.now()}`;
         const testBody = 'This is a test message for fields functionality testing.';
-        const sentId = await createTestMessage(client, {
+        const sentId = await createStoredTestMessage(client, {
           subject: testSubject,
           body: testBody,
         });
@@ -882,7 +878,7 @@ describe('gmail-message-search comprehensive query patterns', () => {
 
     // Create all test messages
     for (const msgData of sharedTestMessages) {
-      const messageId = await createTestMessage(client, msgData);
+      const messageId = await createStoredTestMessage(client, msgData);
       createdMessageIds.push(messageId);
     }
 

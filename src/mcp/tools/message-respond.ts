@@ -8,6 +8,7 @@ const { AuthRequiredBranchSchema } = schemas;
 import type { ToolModule } from '@mcp-z/server';
 import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
 import { z } from 'zod';
+import { formatAddressHeader, formatHeader } from '../../email/composition/header-encoding.ts';
 import { extractEmails } from '../../email/parsing/headers-utils.ts';
 import { b64url } from '../../lib/base64-encoding.ts';
 import { googleAuth } from '../../lib/google-auth.ts';
@@ -35,6 +36,16 @@ const config = {
 
 export type Input = z.infer<typeof inputSchema>;
 export type Output = z.infer<typeof outputSchema>;
+
+/** Build the raw reply message. Subject is RFC 2047 encoded when it is non-ASCII (the Gmail API returns it decoded). */
+export function buildReplyRfc822(args: { toAddr: string; subject: string; messageIdHeader?: string | undefined; references?: string | undefined; contentType?: string | undefined; body: string }): string {
+  const { toAddr, subject, messageIdHeader, references = '', contentType, body } = args;
+  const replySubject = /^re:/i.test(subject) ? subject : `Re: ${subject}`;
+  const inReplyTo = messageIdHeader?.startsWith('<') ? messageIdHeader : messageIdHeader ? `<${messageIdHeader}>` : undefined;
+  const refs = [references, inReplyTo].filter(Boolean).join(' ').trim();
+  const mimeType = contentType === 'html' ? 'text/html' : 'text/plain';
+  return [formatAddressHeader('To', toAddr), formatHeader('Subject', replySubject), `In-Reply-To: ${inReplyTo ?? ''}`, `References: ${refs}`, 'MIME-Version: 1.0', `Content-Type: ${mimeType}; charset=UTF-8`, '', body].join('\r\n');
+}
 
 async function handler({ id, body, contentType }: Input, extra: EnrichedExtra) {
   const logger = extra.logger;
@@ -81,11 +92,7 @@ async function handler({ id, body, contentType }: Input, extra: EnrichedExtra) {
     const subject = (headers.Subject || headers.subject) ?? '';
     const messageIdHeader = headers['Message-ID'] || headers['Message-Id'] || headers['message-id'];
     const references = (headers.References || headers.references) ?? '';
-    const replySubject = /^re:/i.test(subject) ? subject : `Re: ${subject}`;
-    const inReplyTo = messageIdHeader?.startsWith('<') ? messageIdHeader : messageIdHeader ? `<${messageIdHeader}>` : undefined;
-    const refs = [references, inReplyTo].filter(Boolean).join(' ').trim();
-    const mimeType = contentType === 'html' ? 'text/html' : 'text/plain';
-    const lines = [`To: ${toAddr}`, `Subject: ${replySubject}`, `In-Reply-To: ${inReplyTo ?? ''}`, `References: ${refs}`, 'MIME-Version: 1.0', `Content-Type: ${mimeType}; charset=UTF-8`, '', body].join('\r\n');
+    const lines = buildReplyRfc822({ toAddr, subject, messageIdHeader, references, contentType, body });
     const raw = b64url(lines);
 
     // Prepare request body with conditional threadId for exactOptionalPropertyTypes

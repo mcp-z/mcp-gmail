@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 env:
-  TEST_INCLUDE_MANUAL: 'false'
+  TEST_INCLUDE_MANUAL: "false"
 
 jobs:
   test:
@@ -27,7 +27,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     env:
       GOOGLE_CLIENT_ID: test-client-id
-      HEADLESS: 'true'
+      HEADLESS: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7

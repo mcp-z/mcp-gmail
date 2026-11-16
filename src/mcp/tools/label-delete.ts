@@ -1,4 +1,4 @@
-import { gmail as gmailApi } from '@googleapis/gmail';
+import { type gmail_v1, gmail as gmailApi } from '@googleapis/gmail';
 import type { EnrichedExtra } from '@mcp-z/oauth-google';
 import { schemas } from '@mcp-z/oauth-google';
 
@@ -9,6 +9,7 @@ import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
 import { z } from 'zod';
 import { CHUNK_SIZE, MAX_BATCH_SIZE } from '../../constants.ts';
 import { googleAuth } from '../../lib/google-auth.ts';
+import { type PerIdOutcome, runPerId } from '../../lib/run-per-id.ts';
 
 const inputSchema = z.object({
   ids: z.array(z.coerce.string().trim().min(1)).min(1).describe('Gmail label IDs to delete'),
@@ -42,6 +43,28 @@ const config = {
 
 export type Input = z.infer<typeof inputSchema>;
 export type Output = z.infer<typeof outputSchema>;
+
+export async function deleteLabels(gmail: gmail_v1.Gmail, validatedIds: string[], logger: EnrichedExtra['logger']): Promise<PerIdOutcome> {
+  // Get all labels first to check for system labels
+  const labelsResponse = await gmail.users.labels.list({ userId: 'me' });
+  const allLabels = labelsResponse.data.labels || [];
+  const labelMap = new Map(allLabels.map((label) => [label.id || '', label]));
+
+  return runPerId(
+    validatedIds,
+    async (id) => {
+      const label = labelMap.get(id);
+      if (!label) {
+        throw new Error(`Label not found: ${id}`);
+      }
+      if (label.type === 'system') {
+        throw new Error(`Cannot delete system label: ${label.name} (${id})`);
+      }
+      await gmail.users.labels.delete({ userId: 'me', id });
+    },
+    logger
+  );
+}
 
 async function handler({ ids }: Input, extra: EnrichedExtra) {
   const logger = extra.logger;
@@ -84,75 +107,7 @@ async function handler({ ids }: Input, extra: EnrichedExtra) {
 
   try {
     const gmail = gmailApi({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
-    // Get all labels first to check for system labels
-    const labelsResponse = await gmail.users.labels.list({ userId: 'me' });
-    const allLabels = labelsResponse.data.labels || [];
-    const labelMap = new Map(allLabels.map((label) => [label.id || '', label]));
-
-    // Process deletions in chunks to prevent memory exhaustion
-    const allResults: Array<{ id: string; success: boolean; error?: string }> = [];
-
-    for (let i = 0; i < validatedIds.length; i += CHUNK_SIZE) {
-      const chunk = validatedIds.slice(i, i + CHUNK_SIZE);
-      logger.info('Processing chunk', { chunkIndex: i / CHUNK_SIZE + 1, chunkSize: chunk.length, totalChunks: Math.ceil(validatedIds.length / CHUNK_SIZE) });
-
-      const chunkResults = await Promise.allSettled(
-        chunk.map(async (id) => {
-          const label = labelMap.get(id);
-
-          // Check if label exists
-          if (!label) {
-            throw new Error(`Label not found: ${id}`);
-          }
-
-          // Check if it's a system label
-          if (label.type === 'system') {
-            throw new Error(`Cannot delete system label: ${label.name} (${id})`);
-          }
-
-          // Delete the label
-          await gmail.users.labels.delete({
-            userId: 'me',
-            id: id,
-          });
-          return { id, success: true };
-        })
-      );
-
-      // Process chunk results
-      const processedChunkResults = chunkResults.map((result, chunkIndex) => {
-        const id = chunk[chunkIndex];
-        if (!id) {
-          throw new Error(`Chunk index ${chunkIndex} is out of bounds for chunk of size ${chunk.length}`);
-        }
-        if (result.status === 'fulfilled') {
-          return { id, success: true };
-        }
-
-        // Extract error message more robustly
-        let errorMessage = 'Unknown error';
-        if (result.reason) {
-          if (typeof result.reason === 'string') {
-            errorMessage = result.reason;
-          } else if (result.reason instanceof Error) {
-            errorMessage = result.reason.message;
-          } else if (result.reason && typeof result.reason === 'object' && 'message' in result.reason) {
-            errorMessage = String(result.reason.message);
-          } else if (result.reason && typeof result.reason === 'object' && 'error' in result.reason) {
-            errorMessage = String(result.reason.error);
-          } else {
-            errorMessage = String(result.reason);
-          }
-        }
-
-        return { id, success: false, error: errorMessage };
-      });
-
-      allResults.push(...processedChunkResults);
-    }
-
-    const successCount = allResults.filter((r) => r.success).length;
-    const failureCount = allResults.filter((r) => !r.success).length;
+    const { results: allResults, successCount, failureCount } = await deleteLabels(gmail, validatedIds, logger);
 
     logger.info('gmail-label-delete completed', {
       totalRequested: validatedIds.length,

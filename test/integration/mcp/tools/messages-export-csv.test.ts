@@ -49,6 +49,11 @@ describe('Gmail messages export CSV tool (directory creation)', () => {
     }
   });
 
+  beforeEach(async () => {
+    // Start each test without a leftover resource store from an interrupted run
+    await rm(testStorageDir, { recursive: true, force: true });
+  });
+
   afterEach(async () => {
     // Clean up test resource store directory after each test
     try {

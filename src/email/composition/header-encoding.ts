@@ -1,3 +1,4 @@
+import { HEADER_UNSAFE } from '@mcp-z/email';
 import libmime from 'libmime';
 import { addressParser } from 'postal-mime';
 
@@ -15,8 +16,14 @@ export function encodeHeaderText(value: string): string {
   return libmime.encodeWords(value, 'Q', ENCODED_WORD_MAX);
 }
 
+/** Refuse any control character, so a value can never end its header line and start another. https://www.rfc-editor.org/rfc/rfc5322#section-2.2 */
+function assertHeaderSafe(name: string, value: string): void {
+  if (HEADER_UNSAFE.test(value)) throw new Error(`header ${name} contains a line break or control character`);
+}
+
 /** Build one header line, encoding non-ASCII text and folding per RFC 5322 §2.2.3 (CRLF + whitespace). Pure ASCII short lines are unchanged. */
 export function formatHeader(name: string, value: string): string {
+  assertHeaderSafe(name, value);
   const line = `${name}: ${encodeHeaderText(value)}`;
   if (line.length <= LINE_MAX || !NON_ASCII.test(value)) return line;
   return libmime.foldLines(line, LINE_MAX, false).replace(/\r?\n/g, '\r\n');
@@ -52,6 +59,7 @@ export function encodeAddressList(list: string | string[]): string[] {
 /** Address-list header line. A list with no non-ASCII text is written as given; otherwise it is re-serialized and folded between mailboxes (never inside one). */
 export function formatAddressHeader(name: string, list: string | string[]): string {
   const raw = Array.isArray(list) ? list.join(', ') : list;
+  assertHeaderSafe(name, raw);
   if (!NON_ASCII.test(raw)) return `${name}: ${raw}`;
   return `${name}: ${encodeAddressList(list).join(',\r\n ')}`;
 }

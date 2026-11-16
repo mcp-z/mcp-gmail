@@ -1,5 +1,5 @@
 import { gmail as gmailApi } from '@googleapis/gmail';
-import { ComposeContentTypeSchema } from '@mcp-z/email';
+import { ComposeContentTypeSchema, sanitizeHeaderText } from '@mcp-z/email';
 import type { EnrichedExtra } from '@mcp-z/oauth-google';
 import { schemas } from '@mcp-z/oauth-google';
 
@@ -37,14 +37,20 @@ const config = {
 export type Input = z.infer<typeof inputSchema>;
 export type Output = z.infer<typeof outputSchema>;
 
-/** Build the raw reply message. Subject is RFC 2047 encoded when it is non-ASCII (the Gmail API returns it decoded). */
+/**
+ * Build the raw reply message. Subject is RFC 2047 encoded when it is non-ASCII (the Gmail API returns it decoded).
+ * Subject, Message-ID and References come from received mail, so each run of line breaks and control characters is turned into one space instead of being refused.
+ */
 export function buildReplyRfc822(args: { toAddr: string; subject: string; messageIdHeader?: string | undefined; references?: string | undefined; contentType?: string | undefined; body: string }): string {
-  const { toAddr, subject, messageIdHeader, references = '', contentType, body } = args;
+  const { toAddr, contentType, body } = args;
+  const subject = sanitizeHeaderText(args.subject);
+  const messageIdHeader = args.messageIdHeader === undefined ? undefined : sanitizeHeaderText(args.messageIdHeader);
+  const references = sanitizeHeaderText(args.references ?? '');
   const replySubject = /^re:/i.test(subject) ? subject : `Re: ${subject}`;
   const inReplyTo = messageIdHeader?.startsWith('<') ? messageIdHeader : messageIdHeader ? `<${messageIdHeader}>` : undefined;
   const refs = [references, inReplyTo].filter(Boolean).join(' ').trim();
   const mimeType = contentType === 'html' ? 'text/html' : 'text/plain';
-  return [formatAddressHeader('To', toAddr), formatHeader('Subject', replySubject), `In-Reply-To: ${inReplyTo ?? ''}`, `References: ${refs}`, 'MIME-Version: 1.0', `Content-Type: ${mimeType}; charset=UTF-8`, '', body].join('\r\n');
+  return [formatAddressHeader('To', toAddr), formatHeader('Subject', replySubject), formatHeader('In-Reply-To', inReplyTo ?? ''), formatHeader('References', refs), 'MIME-Version: 1.0', `Content-Type: ${mimeType}; charset=UTF-8`, '', body].join('\r\n');
 }
 
 async function handler({ id, body, contentType }: Input, extra: EnrichedExtra) {

@@ -117,4 +117,30 @@ describe('buildRfc822FromArgs', () => {
       assert.ok(raw.includes('To: "Doe, John" <j@example.com>, x@y.z\r\n'));
     });
   });
+
+  describe('header injection guard', () => {
+    const attack = 'x\r\nBcc: evil@example.com';
+    const cases: Array<[string, Parameters<typeof buildRfc822FromArgs>[0]]> = [
+      ['subject', { to: 'a@example.com', subject: attack }],
+      ['non-ASCII subject', { to: 'a@example.com', subject: `é${attack}` }],
+      ['bare LF subject', { to: 'a@example.com', subject: 'x\nBcc: evil@example.com' }],
+      ['DEL subject', { to: 'a@example.com', subject: 'x\u007f' }],
+      ['to', { to: `a@example.com${attack}` }],
+      ['to array item', { to: ['a@example.com', `b@example.com${attack}`] }],
+      ['cc', { to: 'a@example.com', cc: attack }],
+      ['bcc', { to: 'a@example.com', bcc: attack }],
+      ['display name', { to: `"Bob\r\nBcc: evil@example.com" <b@example.com>` }],
+      ['non-ASCII display name', { to: `"Zoë\r\nBcc: evil@example.com" <b@example.com>` }],
+      ['from', { from: attack, to: 'a@example.com' }],
+    ];
+    for (const [label, args] of cases) {
+      it(`throws for ${label}`, () => {
+        assert.throws(() => buildRfc822FromArgs({ ...args, body: 'x' }), /line break or control character/);
+      });
+    }
+
+    it('allows a tab in the subject', () => {
+      assert.ok(buildRfc822FromArgs({ to: 'a@example.com', subject: 'a\tb', body: 'x' }).includes('Subject: a\tb\r\n'));
+    });
+  });
 });

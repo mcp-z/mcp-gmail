@@ -1,5 +1,5 @@
 import { gmail as gmailApi } from '@googleapis/gmail';
-import { ComposeContentTypeSchema, createEmailRecipientsSchema, createMessageResultSchema } from '@mcp-z/email';
+import { ComposeContentTypeSchema, createEmailRecipientsSchema, createMessageResultSchema, headerText } from '@mcp-z/email';
 import type { EnrichedExtra } from '@mcp-z/oauth-google';
 import { schemas } from '@mcp-z/oauth-google';
 
@@ -16,7 +16,7 @@ const inputSchema = z.object({
   to: createEmailRecipientsSchema('to', true),
   cc: createEmailRecipientsSchema('cc', false),
   bcc: createEmailRecipientsSchema('bcc', false),
-  subject: z.string().describe('Message subject').default(''),
+  subject: headerText('Message subject').default(''),
   body: z.string().trim().min(1).describe('Email body content (plain text or HTML)'),
   contentType: ComposeContentTypeSchema,
 });

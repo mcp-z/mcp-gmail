@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.1] - 2026-11-16
+
+### Fixed
+
+- A subject, recipient or display name containing a line break or other control character (tab is allowed) is rejected with an error naming the field. Previously it could add header lines to the message, such as a hidden `Bcc`.
+- `message-respond` cleans the original message's Subject, Message-ID and References before building the reply: each run of line breaks or control characters becomes one space, so a crafted message cannot add headers to your reply and can still be answered. Requires `@mcp-z/email` 1.1.5.
+
 ## [2.4.0] - 2026-11-15
 
 ### Added

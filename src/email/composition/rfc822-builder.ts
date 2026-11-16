@@ -1,3 +1,5 @@
+import { formatAddressHeader, formatHeader } from './header-encoding.ts';
+
 export interface Rfc822Args {
   to?: string | string[];
   cc?: string | string[];
@@ -14,11 +16,11 @@ export function buildRfc822FromArgs(args: Rfc822Args): string {
 
   const headers: string[] = [];
 
-  if (from) headers.push(`From: ${from}`);
-  if (to && to.length) headers.push(`To: ${Array.isArray(to) ? to.join(', ') : to}`);
-  if (cc && cc.length) headers.push(`Cc: ${Array.isArray(cc) ? cc.join(', ') : cc}`);
-  if (bcc && bcc.length) headers.push(`Bcc: ${Array.isArray(bcc) ? bcc.join(', ') : bcc}`);
-  if (subject) headers.push(`Subject: ${subject}`);
+  if (from) headers.push(formatAddressHeader('From', from));
+  if (to && to.length) headers.push(formatAddressHeader('To', to));
+  if (cc && cc.length) headers.push(formatAddressHeader('Cc', cc));
+  if (bcc && bcc.length) headers.push(formatAddressHeader('Bcc', bcc));
+  if (subject) headers.push(formatHeader('Subject', subject));
 
   headers.push('MIME-Version: 1.0');
   const mimeType = contentType === 'html' ? 'text/html' : 'text/plain';

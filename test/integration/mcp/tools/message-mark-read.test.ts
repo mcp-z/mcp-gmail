@@ -6,7 +6,7 @@ import assert from 'assert';
 import type { Input, Output } from '../../../../src/mcp/tools/message-mark-read.ts';
 import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
 import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
-import { createTestMessage, deleteTestMessage } from '../../../lib/message-helpers.ts';
+import { createStoredTestMessage, deleteTestMessage } from '../../../lib/message-helpers.ts';
 import waitForMessage from '../../../lib/wait-for-message.ts';
 
 describe('message-mark-read tool', () => {
@@ -34,9 +34,12 @@ describe('message-mark-read tool', () => {
     const createdIds: string[] = [];
 
     try {
-      const sentId = await createTestMessage(gmail);
+      const sentId = await createStoredTestMessage(gmail, { labels: ['UNREAD'] });
       createdIds.push(sentId);
       await waitForMessage(gmail, sentId, { interval: 200, timeout: 8000 });
+
+      const beforeRead = await gmail.users.messages.get({ userId: 'me', id: sentId, format: 'minimal' });
+      assert.ok(beforeRead.data.labelIds?.includes('UNREAD'), 'fixture must start unread');
 
       const mrResp = await handler({ id: sentId }, createExtra());
 
@@ -51,6 +54,8 @@ describe('message-mark-read tool', () => {
         // If an error branch is returned, fail the test with the error details
         assert.fail(`expected success branch but received error: ${JSON.stringify(structured)}`);
       }
+      const afterRead = await gmail.users.messages.get({ userId: 'me', id: sentId, format: 'minimal' });
+      assert.ok(!afterRead.data.labelIds?.includes('UNREAD'), 'mark-read must remove UNREAD');
     } finally {
       // Per-test close: delete created messages; fail loudly on persistent failure
       if (createdIds.length > 0) {

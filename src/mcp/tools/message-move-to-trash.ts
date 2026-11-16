@@ -1,4 +1,4 @@
-import { gmail as gmailApi } from '@googleapis/gmail';
+import { type gmail_v1, gmail as gmailApi } from '@googleapis/gmail';
 import type { EnrichedExtra } from '@mcp-z/oauth-google';
 import { schemas } from '@mcp-z/oauth-google';
 
@@ -9,6 +9,7 @@ import { ProtocolError, ProtocolErrorCode } from '@mcp-z/server';
 import { z } from 'zod';
 import { CHUNK_SIZE, MAX_BATCH_SIZE } from '../../constants.ts';
 import { googleAuth } from '../../lib/google-auth.ts';
+import { type PerIdOutcome, runPerId } from '../../lib/run-per-id.ts';
 
 const inputSchema = z.object({
   ids: z.array(z.coerce.string().trim().min(1)).min(1).describe('Gmail message IDs to move to trash'),
@@ -42,6 +43,10 @@ const config = {
 
 export type Input = z.infer<typeof inputSchema>;
 export type Output = z.infer<typeof outputSchema>;
+
+export async function trashMessages(gmail: gmail_v1.Gmail, validatedIds: string[], logger: EnrichedExtra['logger']): Promise<PerIdOutcome> {
+  return runPerId(validatedIds, (id) => gmail.users.messages.trash({ userId: 'me', id }), logger);
+}
 
 async function handler({ ids }: Input, extra: EnrichedExtra) {
   const logger = extra.logger;
@@ -84,57 +89,7 @@ async function handler({ ids }: Input, extra: EnrichedExtra) {
 
   try {
     const gmail = gmailApi({ version: 'v1', auth: googleAuth(extra.authContext.auth) });
-    // Process operations in chunks to prevent memory exhaustion
-    const allResults: Array<{ id: string; success: boolean; error?: string }> = [];
-
-    for (let i = 0; i < validatedIds.length; i += CHUNK_SIZE) {
-      const chunk = validatedIds.slice(i, i + CHUNK_SIZE);
-      logger.info('Processing chunk', { chunkIndex: i / CHUNK_SIZE + 1, chunkSize: chunk.length, totalChunks: Math.ceil(validatedIds.length / CHUNK_SIZE) });
-
-      const chunkResults = await Promise.allSettled(
-        chunk.map(async (id) => {
-          await gmail.users.messages.trash({
-            userId: 'me',
-            id: id,
-          });
-          return { id, success: true };
-        })
-      );
-
-      // Process chunk results
-      const processedChunkResults = chunkResults.map((result, chunkIndex) => {
-        const id = chunk[chunkIndex];
-        if (!id) {
-          throw new Error(`Chunk index ${chunkIndex} is out of bounds for chunk of size ${chunk.length}`);
-        }
-        if (result.status === 'fulfilled') {
-          return { id, success: true };
-        }
-
-        // Extract error message more robustly
-        let errorMessage = 'Unknown error';
-        if (result.reason) {
-          if (typeof result.reason === 'string') {
-            errorMessage = result.reason;
-          } else if (result.reason instanceof Error) {
-            errorMessage = result.reason.message;
-          } else if (result.reason && typeof result.reason === 'object' && 'message' in result.reason) {
-            errorMessage = String(result.reason.message);
-          } else if (result.reason && typeof result.reason === 'object' && 'error' in result.reason) {
-            errorMessage = String(result.reason.error);
-          } else {
-            errorMessage = String(result.reason);
-          }
-        }
-
-        return { id, success: false, error: errorMessage };
-      });
-
-      allResults.push(...processedChunkResults);
-    }
-
-    const successCount = allResults.filter((r) => r.success).length;
-    const failureCount = allResults.filter((r) => !r.success).length;
+    const { results: allResults, successCount, failureCount } = await trashMessages(gmail, validatedIds, logger);
 
     logger.info('gmail-message-move-to-trash completed', {
       totalRequested: validatedIds.length,

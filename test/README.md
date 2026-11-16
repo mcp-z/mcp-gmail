@@ -7,7 +7,7 @@ npm run test:ci          # Credential-free selection, excludes test/integration/
 npm run test:ci:engines  # Same selection across supported Node versions
 ```
 
-The runner loads `test/lib/env-loader.ts` before tests. It optionally loads `.env.test` through `portable-env`; file values override matching inherited values. The shell or CI can supply values without a file.
+The runner loads `test/lib/env-loader.ts` before tests. It optionally loads the package root's `.env.test`, else `~/.config/mcp-z/mcp-gmail/.env.test` (the first one found is used) through `portable-env`; file values override matching inherited values. The shell or CI can supply values without a file.
 
 Live tests require `GOOGLE_CLIENT_ID`, a configured test account, valid stored OAuth tokens, and access to Google APIs. `GOOGLE_CLIENT_SECRET` is optional for public loopback clients. To authorize a local test account interactively, run:
 

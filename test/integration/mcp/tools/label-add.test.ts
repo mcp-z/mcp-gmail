@@ -8,7 +8,7 @@ import type { Input, Output } from '../../../../src/mcp/tools/label-add.ts';
 import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
 import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
 import { deleteTestLabel } from '../../../lib/label-helpers.ts';
-import { createTestMessage, deleteTestMessage } from '../../../lib/message-helpers.ts';
+import { createStoredTestMessage, deleteTestMessage } from '../../../lib/message-helpers.ts';
 import waitForLabel from '../../../lib/wait-for-label.ts';
 import waitForMessage from '../../../lib/wait-for-message.ts';
 
@@ -36,7 +36,7 @@ describe('label-add tool', () => {
     const createdLabelIds: string[] = [];
 
     try {
-      const sentId = await createTestMessage(gmail);
+      const sentId = await createStoredTestMessage(gmail);
       createdIds.push(sentId);
 
       // Wait until Gmail reports the message exists (indexed)
@@ -78,6 +78,8 @@ describe('label-add tool', () => {
 
         // Verify the label name matches what we requested
         assert.strictEqual(itemLabel, labelName, 'Returned label name should match requested name');
+        const message = await gmail.users.messages.get({ userId: 'me', id: sentId, format: 'minimal' });
+        assert.ok(message.data.labelIds?.includes(createdLabelId), 'Requested label must be present on the message');
       } else {
         // Fail loudly on any error - don't paper over issues
         assert.fail(`expected success branch but received error: ${JSON.stringify(structured)}`);

@@ -6,7 +6,7 @@ import assert from 'assert';
 import type { Input, Output } from '../../../../src/mcp/tools/message-move-to-trash.ts';
 import { createExtra, type TypedHandler } from '../../../lib/create-extra.ts';
 import createMiddlewareContext from '../../../lib/create-middleware-context.ts';
-import { createTestMessage, deleteTestMessage } from '../../../lib/message-helpers.ts';
+import { createStoredTestMessage, deleteTestMessage } from '../../../lib/message-helpers.ts';
 import waitForMessage from '../../../lib/wait-for-message.ts';
 
 describe('gmail-message-move-to-trash', () => {
@@ -36,7 +36,7 @@ describe('gmail-message-move-to-trash', () => {
     const createdIds: string[] = [];
 
     try {
-      const sentId = await createTestMessage(gmail);
+      const sentId = await createStoredTestMessage(gmail);
       createdIds.push(sentId);
       await waitForMessage(gmail, sentId, { interval: 200, timeout: 8000 });
 
@@ -75,9 +75,10 @@ describe('gmail-message-move-to-trash', () => {
 
     try {
       // Create multiple test messages
-      const sentId1 = await createTestMessage(gmail, { subject: `ci-batch-1-${Date.now()}` });
-      const sentId2 = await createTestMessage(gmail, { subject: `ci-batch-2-${Date.now()}` });
-      createdIds.push(sentId1, sentId2);
+      const sentId1 = await createStoredTestMessage(gmail, { subject: `ci-batch-1-${Date.now()}` });
+      createdIds.push(sentId1);
+      const sentId2 = await createStoredTestMessage(gmail, { subject: `ci-batch-2-${Date.now()}` });
+      createdIds.push(sentId2);
 
       // Wait for messages to be available
       await waitForMessage(gmail, sentId1, { interval: 200, timeout: 8000 });
@@ -133,7 +134,7 @@ describe('gmail-message-move-to-trash', () => {
 
     try {
       // Create one valid message
-      const validId = await createTestMessage(gmail, { subject: `ci-mixed-${Date.now()}` });
+      const validId = await createStoredTestMessage(gmail, { subject: `ci-mixed-${Date.now()}` });
       createdIds.push(validId);
       await waitForMessage(gmail, validId, { interval: 200, timeout: 8000 });
 

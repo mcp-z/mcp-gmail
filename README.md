@@ -67,6 +67,18 @@ it sends no `initialize` handshake and carries no session id.
 
 Configure via environment variables or the `env` block in `.mcp.json`. The configuration reference below lists every option.
 
+### Configuration file
+
+Keep the client secret out of your shell and out of `.mcp.json` by putting it in a private file the server reads at startup, `~/.config/mcp-z/mcp-gmail/.env`:
+
+```bash
+mkdir -p ~/.config/mcp-z/mcp-gmail && chmod 700 ~/.config/mcp-z/mcp-gmail
+printf 'GOOGLE_CLIENT_ID=your-client-id\nGOOGLE_CLIENT_SECRET=your-client-secret\n' > ~/.config/mcp-z/mcp-gmail/.env
+chmod 600 ~/.config/mcp-z/mcp-gmail/.env
+```
+
+The server uses the first of `.mcp-z/mcp-gmail/.env` beside the nearest `.mcp.json` (else `~/.mcp-z/mcp-gmail/.env`) and `~/.config/mcp-z/mcp-gmail/.env` that exists. Anything set in the environment or in the `.mcp.json` `env` block overrides the file. On macOS and Linux the server refuses a file that other users can read.
+
 ### Loopback OAuth (default)
 
 Environment variables:
@@ -172,6 +184,9 @@ npx -y @mcp-z/cli inspect --servers gmail --tools
 
 # Call a tool after authorizing Gmail
 npx -y @mcp-z/cli call-tool gmail message-search '{"query":"from:alice@example.com"}'
+
+# Archive messages (remove from Inbox, nothing else changes)
+npx -y @mcp-z/cli call-tool gmail message-archive '{"ids":["MESSAGE_ID"]}'
 ```
 
 ## Tools
@@ -179,14 +194,16 @@ npx -y @mcp-z/cli call-tool gmail message-search '{"query":"from:alice@example.c
 1. categories-list
 2. label-add
 3. label-delete
-4. labels-list
-5. message-get
-6. message-mark-read
-7. message-move-to-trash
-8. message-respond
-9. message-search
-10. message-send
-11. messages-export-csv
+4. label-remove
+5. labels-list
+6. message-archive
+7. message-get
+8. message-mark-read
+9. message-move-to-trash
+10. message-respond
+11. message-search
+12. message-send
+13. messages-export-csv
 
 ## Resources
 

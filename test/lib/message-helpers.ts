@@ -12,7 +12,15 @@ export interface CreateTestMessageOptions {
   labels?: string[];
 }
 
-export async function createTestMessage(gmail: gmail_v1.Gmail, opts: CreateTestMessageOptions = {}): Promise<string> {
+export function createTestMessage(gmail: gmail_v1.Gmail, opts: CreateTestMessageOptions = {}): Promise<string> {
+  return createMessage(gmail, opts, true);
+}
+
+export function createStoredTestMessage(gmail: gmail_v1.Gmail, opts: CreateTestMessageOptions = {}): Promise<string> {
+  return createMessage(gmail, opts, false);
+}
+
+async function createMessage(gmail: gmail_v1.Gmail, opts: CreateTestMessageOptions, send: boolean): Promise<string> {
   const profileResp = await gmail.users.getProfile({ userId: 'me' });
   const userEmail = profileResp.data.emailAddress ?? 'me';
 
@@ -39,21 +47,35 @@ export async function createTestMessage(gmail: gmail_v1.Gmail, opts: CreateTestM
 
   const raw = [...headers, body].join('\r\n');
   const encoded = Buffer.from(raw).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  const sentResp = await gmail.users.messages.send({ userId: 'me', requestBody: { raw: encoded } });
+  const sentResp = send
+    ? await gmail.users.messages.send({ userId: 'me', requestBody: { raw: encoded } })
+    : await gmail.users.messages.insert({
+        userId: 'me',
+        internalDateSource: 'receivedTime',
+        requestBody: { raw: encoded, labelIds: opts.labels ?? [] },
+      });
   const sent = sentResp.data;
-  if (!sent?.id) throw new Error('createTestMessage: expected sent message id');
+  if (!sent?.id) throw new Error('createMessage: expected created message id');
 
   const messageId = sent.id;
 
   // Apply labels if specified (labels are applied after message creation)
-  if (opts.labels && opts.labels.length > 0) {
-    await gmail.users.messages.modify({
-      userId: 'me',
-      id: messageId,
-      requestBody: {
-        addLabelIds: opts.labels,
-      },
-    });
+  if (send && opts.labels && opts.labels.length > 0) {
+    try {
+      await gmail.users.messages.modify({
+        userId: 'me',
+        id: messageId,
+        requestBody: { addLabelIds: opts.labels },
+      });
+    } catch (primaryError) {
+      try {
+        await gmail.users.messages.delete({ userId: 'me', id: messageId });
+      } catch (cleanupError) {
+        const message = [primaryError, cleanupError].map((error) => (error instanceof Error ? error.message : String(error))).join('; ');
+        throw Object.assign(new Error(message), { errors: [primaryError, cleanupError], primaryError, messageId });
+      }
+      throw primaryError;
+    }
   }
 
   return messageId;

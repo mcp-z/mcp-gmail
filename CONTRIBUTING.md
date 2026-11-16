@@ -59,7 +59,7 @@ npm run test:engines -- "test/exports/*.test.*" "test/unit/**/*.test.ts" "test/i
 
 The PR job supplies the nonsecret `GOOGLE_CLIENT_ID=test-client-id` and `HEADLESS=true` required for local server startup. The stdio suites issue discovery requests without invoking provider tools and own private project/store paths. The HTTP suite uses explicit local configuration. A green PR check establishes local coverage only.
 
-`npm test`, `npm run test:engines` and both `test:ci` aliases retain full discovery without exclusions or script-level environment preloads. Each configured TypeScript test entrypoint imports its environment loader first. The optional `.env.test` overrides matching inherited values; CI can supply values without that file. JavaScript export smokes need no environment setup.
+`npm test`, `npm run test:engines` and both `test:ci` aliases retain full discovery without exclusions or script-level environment preloads. Each configured TypeScript test entrypoint imports its environment loader first. The optional `.env.test` (the package root's, else `~/.config/mcp-z/mcp-gmail/.env.test`) overrides matching inherited values; CI can supply values without that file. JavaScript export smokes need no environment setup.
 
 ### Trusted tests
 

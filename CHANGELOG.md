@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.4.0] - 2026-11-15
+
+### Added
+
+- `message-archive` removes messages from the Inbox (only `INBOX` is removed; other labels and read state are kept) and `label-remove` removes one existing label from messages without creating or deleting any label. Both take `ids` and report a result per message, like `message-move-to-trash`.
+- Private settings such as the OAuth client ID and secret can live in a file instead of the shell: the first file found of `<baseDir>/mcp-gmail/.env` (the `.mcp-z` folder beside the nearest `.mcp.json`, else in the home folder) and `~/.config/mcp-z/mcp-gmail/.env`. Non-empty environment values win over the file. On macOS and Linux a file readable by other accounts is refused. Requires `@mcp-z/server` 2.3.0.
+
+### Fixed
+
+- Non-ASCII subjects and display names are sent as RFC 2047 encoded-words, so they no longer arrive garbled.
+- `label-add` uses an existing label found by ID or name before creating one.
+
 ## [2.3.0] - 2026-09-07
 
 ### Changed

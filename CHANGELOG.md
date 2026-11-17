@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.5.1]
+
+### Fixed
+
+- `message-search`, `message-get` and `messages-export-csv` no longer fail when a result contains an email whose HTML is nested thousands of elements deep. Its text is returned. The text of an HTML body now has leading and trailing whitespace removed and line breaks written as `\n`.
+
 ## [2.5.0]
 
 ### Changed

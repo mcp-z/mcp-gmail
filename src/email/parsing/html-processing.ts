@@ -1,6 +1,5 @@
 import type { gmail_v1 } from '@googleapis/gmail';
-import { extractCurrentMessageFromHtml } from '@mcp-z/email';
-import { parse } from 'node-html-parser';
+import { extractCurrentMessageFromHtml, stripHtml } from '@mcp-z/email';
 
 export interface BodyExtractionOptions {
   /** Format to return: 'text' extracts plain text, 'html' preserves HTML structure */
@@ -38,12 +37,7 @@ export function extractBodyFromPayload(payload: gmail_v1.Schema$MessagePart, opt
         }
 
         // Otherwise extract plain text from HTML
-        const doc = parse(html);
-        const docUnknown = doc as unknown;
-        if (docUnknown && typeof docUnknown === 'object' && 'text' in docUnknown) {
-          return docUnknown.text as string;
-        }
-        return '';
+        return stripHtml(html);
       }
     }
   }

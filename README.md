@@ -232,7 +232,7 @@ npm install -g @mcp-z/mcp-gmail @keyv/redis
 TOKEN_STORE_URI=redis://localhost:6379 mcp-gmail
 ```
 
-A protocol whose adapter is missing fails at startup naming the package to install.
+A protocol whose adapter is missing fails at startup naming the package to install. This release uses keyv 6, so adapters you install should be keyv 6 releases (`@keyv/redis` 6). Sign-ins saved by earlier versions are moved to the new format on first start.
 
 ## Documentation
 

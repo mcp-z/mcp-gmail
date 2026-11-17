@@ -81,7 +81,6 @@
     "keyv-registry": "^3.0.0",
     "libmime": "^5.6.4",
     "module-root-sync": "^2.0.0",
-    "node-html-parser": "^9.0.1",
     "pino": "^10.0.0",
     "postal-mime": "^4.2.1",
     "zod": "^4.2.0"
@@ -96,6 +95,7 @@
     "fs-remove-compat": "^1.0.4",
     "get-port": "5.1.1",
     "keyv": "^6.1.0",
+    "node-html-parser": "^9.0.1",
     "node-version-use": "^2.4.7",
     "p-throttle": "^8.1.1",
     "portable-env": "^1.4.0",

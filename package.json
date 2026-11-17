@@ -70,7 +70,7 @@
   },
   "dependencies": {
     "@googleapis/gmail": "^22.0.0",
-    "@mcp-z/email": "^1.1.6",
+    "@mcp-z/email": "^1.1.5",
     "@mcp-z/oauth": "^2.2.0",
     "@mcp-z/oauth-google": "^2.4.0",
     "@mcp-z/server": "^2.3.0",

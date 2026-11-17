@@ -16,8 +16,9 @@ import { gmail as gmailApi, auth as googleAuthPlus } from '@googleapis/gmail';
 import { AuthRequiredError, listAccountIds } from '@mcp-z/oauth';
 import { LoopbackOAuthProvider } from '@mcp-z/oauth-google';
 import type { Keyv } from 'keyv';
+// keyv-registry directly, not src/lib/create-store.ts: .tokens/ is never migrated
+import createStore from 'keyv-registry';
 import { GOOGLE_SCOPE } from '../src/constants.ts';
-import createStore from '../src/lib/create-store.ts';
 import { createConfig } from '../src/setup/config.ts';
 
 const CHUNK_SIZE = 20; // Gmail API has stricter rate limits

@@ -47,3 +47,4 @@ examples/service-account.json
 # Backup files
 *.bak
 .archive/
+.cache/

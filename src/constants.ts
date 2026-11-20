@@ -10,6 +10,9 @@ import { EMAIL_CHUNK_SIZE, EMAIL_MAX_BATCH_SIZE } from '@mcp-z/email';
 // Google OAuth scopes required for Gmail operations
 export const GOOGLE_SCOPE = 'openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://mail.google.com/';
 
+// Default token and DCR stores: a JSON file several processes can share
+export const SHARED_FILE_PROTOCOL = 'file+shared:';
+
 // Batch processing configuration (from shared email constants)
 export const CHUNK_SIZE = EMAIL_CHUNK_SIZE;
 export const MAX_BATCH_SIZE = EMAIL_MAX_BATCH_SIZE;

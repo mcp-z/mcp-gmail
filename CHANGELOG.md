@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.5.2] - 2026-11-19
+
+### Security
+
+- In `--auth=dcr` mode every MCP request now needs a valid bearer token. Before, `/mcp` answered `initialize`, `tools/list` and the other methods with 200 and no token, and only tool calls were refused. Requests without a valid token now get 401 with a `WWW-Authenticate` challenge naming the server's resource metadata; this changes behaviour for anyone who relied on the open endpoint. Clients that sign in through the server's OAuth flow are unaffected. Requires `@mcp-z/server` 2.4.0 and `@mcp-z/oauth-google` 2.4.3.
+
+### Fixed
+
+- Two mcp-z servers, or two sessions of one server, sharing `.mcp-z/tokens.json` no longer undo each other's sign-ins and sign-outs, and each sees the others' changes without restarting. Existing sign-ins are kept. The file is now written with mode 0600 on macOS and Linux. Upgrade every mcp-z server and the cli together: an older one running beside this one still rewrites the file. A damaged `tokens.json` or `dcr.json` now stops the server at start with an error naming the file, instead of being overwritten. Requires `keyv-registry` 3.1.0.
+- A failed start in stdio mode no longer prints a second `sonic boom is not ready yet` error after the real one, and the log keeps its last lines.
+
 ## [2.5.1]
 
 ### Fixed

@@ -45,6 +45,7 @@ export async function createHTTPServer(config: ServerConfig, overrides?: Runtime
     port,
     allowedOrigins: publicUrl ? [publicUrl.origin] : undefined,
     allowedHosts: publicUrl ? [publicUrl.host] : undefined,
+    bearerAuth: runtime.deps.oauthAdapters.bearerAuth,
   });
 
   // The loopback OAuth callback, the file-export download, and the DCR discovery/

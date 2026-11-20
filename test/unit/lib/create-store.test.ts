@@ -1,5 +1,6 @@
 import assert from 'assert';
-import { copyFileSync, mkdirSync, rmSync } from 'fs';
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { safeRmSync } from 'fs-remove-compat';
 import { KeyvFile } from 'keyv-file';
 import * as path from 'path';
 import { pathToFileURL } from 'url';
@@ -10,7 +11,7 @@ import { createTokenStore } from '../../../src/setup/runtime.ts';
 const dir = path.resolve('.tmp', `create-store-${process.pid}`);
 
 describe('create-store keyv 5 migration', () => {
-  after(() => rmSync(dir, { recursive: true, force: true }));
+  after(() => safeRmSync(dir, { recursive: true, force: true }));
 
   it('finds a token saved by keyv 5 through the token store', async () => {
     mkdirSync(dir, { recursive: true });
@@ -61,5 +62,66 @@ describe('create-store keyv 5 migration', () => {
 
   it('names only the protocol when the store cannot be created, never the URI', async () => {
     await assert.rejects(createStore<unknown>('nosuchproto://user:secretpw@host/0'), (err: Error) => err.message.startsWith('Failed to create store for nosuchproto:') && !err.message.includes('secretpw'));
+  });
+});
+
+describe('create-store default token store', () => {
+  const root = path.resolve('.tmp', `create-store-default-${process.pid}`);
+  let saved: string | undefined;
+
+  before(() => {
+    saved = process.env.TOKEN_STORE_URI;
+    delete process.env.TOKEN_STORE_URI;
+  });
+  after(() => {
+    if (saved !== undefined) process.env.TOKEN_STORE_URI = saved;
+    safeRmSync(root, { recursive: true, force: true });
+  });
+
+  function scratch(name: string): string {
+    const folder = path.join(root, name);
+    mkdirSync(folder, { recursive: true });
+    return folder;
+  }
+
+  it('two stores opened from the default URI keep each other sign-ins and see each other changes', async () => {
+    const folder = scratch('shared');
+    const first = await createTokenStore(folder);
+    const second = await createTokenStore(folder);
+    try {
+      await first.set('alice@example.com:gmail:token', { accessToken: 'alice' } as never);
+      await second.set('bob@example.com:gmail:token', { accessToken: 'bob' } as never);
+      assert.strictEqual(((await first.get('bob@example.com:gmail:token')) as { accessToken?: string } | undefined)?.accessToken, 'bob');
+      assert.strictEqual(((await second.get('alice@example.com:gmail:token')) as { accessToken?: string } | undefined)?.accessToken, 'alice');
+      await first.delete('alice@example.com:gmail:token');
+      assert.strictEqual(await second.get('alice@example.com:gmail:token'), undefined);
+      assert.strictEqual(((await second.get('bob@example.com:gmail:token')) as { accessToken?: string } | undefined)?.accessToken, 'bob');
+    } finally {
+      await first.disconnect();
+      await second.disconnect();
+    }
+  });
+
+  it('reads a file written through an explicit file:// URI', async () => {
+    const folder = scratch('written-by-keyv-file');
+    const file = path.join(folder, 'tokens.json');
+    const writer = await createStore<unknown>(pathToFileURL(file).href);
+    await writer.set('alice@example.com:gmail:token', { accessToken: 'from-keyv-file' });
+    await writer.disconnect();
+    const store = await createTokenStore(folder);
+    try {
+      assert.strictEqual(((await store.get('alice@example.com:gmail:token')) as { accessToken?: string } | undefined)?.accessToken, 'from-keyv-file');
+    } finally {
+      await store.disconnect();
+    }
+  });
+
+  it('rejects naming the file when the default file is damaged', async () => {
+    const folder = scratch('damaged');
+    const file = path.join(folder, 'tokens.json');
+    const damaged = '{"cache":[["a"';
+    writeFileSync(file, damaged);
+    await assert.rejects(createTokenStore(folder), (err: Error & { cause?: Error }) => err.message.startsWith('Failed to create store for file') && String(err.cause?.message).includes(file));
+    assert.strictEqual(readFileSync(file, 'utf8'), damaged);
   });
 });

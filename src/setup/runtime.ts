@@ -29,9 +29,9 @@ export async function createTokenStore(baseDir: string, logger?: Logger) {
   return createStore<CachedToken>(tokenStoreUri, logger);
 }
 
-export async function createDcrStore(baseDir: string, required: boolean, logger?: Logger) {
+export async function createDcrStore(baseDir: string, required: boolean, logger?: Logger, storeUri?: string) {
   if (!required) return undefined;
-  const dcrStoreUri = process.env.DCR_STORE_URI || sharedFileUri(path.join(baseDir, 'dcr.json'));
+  const dcrStoreUri = storeUri || process.env.DCR_STORE_URI || sharedFileUri(path.join(baseDir, 'dcr.json'));
   return createStore<unknown>(dcrStoreUri, logger);
 }
 
@@ -95,7 +95,7 @@ export async function createDefaultRuntime(config: ServerConfig, overrides?: Run
   validateStorageConfig(config, logger);
   const tokenStore = await createTokenStore(config.baseDir, logger);
   const baseUrl = config.baseUrl ?? (config.transport.type === 'http' && config.transport.port ? `http://localhost:${config.transport.port}` : undefined);
-  const dcrStore = await createDcrStore(config.baseDir, config.auth === 'dcr', logger);
+  const dcrStore = await createDcrStore(config.baseDir, config.auth === 'dcr', logger, config.dcrConfig?.storeUri);
   const oauthAdapters = await createOAuthAdapters(config, { logger, tokenStore, dcrStore }, baseUrl);
   const deps: RuntimeDeps = { config, logger, tokenStore, oauthAdapters, baseUrl };
   const createDomainModules =

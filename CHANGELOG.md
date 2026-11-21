@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.5.3] - 2026-11-20
+
+### Removed
+
+- The external DCR mode settings `--dcr-mode=external`, `DCR_MODE=external`, `--dcr-verify-url` and `DCR_VERIFY_URL` are gone from the help text and `server.json`. They never had an effect: the server always ran its own sign-in endpoints. With `--auth=dcr`, a server started with external mode, or with a verify URL, now stops at start with an error saying so instead of ignoring the setting; in other auth modes the settings are still ignored and nothing stops. `--dcr-mode=self-hosted` and `DCR_MODE=self-hosted` still work.
+
+### Fixed
+
+- The `DCR_STORE_URI` entry in `server.json` no longer carries a fixed default with a wrong path, so `mcp-z` manifest generation does not write one into a configuration. The server's own default is `.mcp-z/dcr.json`.
+- The `RESOURCE_STORE_URI` entry in `server.json` no longer carries a fixed value, so `mcp-z` manifest generation no longer pins the resource folder to the home directory in a generated configuration. A configuration generated earlier keeps its line and is unaffected.
+- `--dcr-store-uri` is honoured. It was documented but ignored, so only `DCR_STORE_URI` chose where DCR registrations were stored; the flag now wins over the variable.
+
 ## [2.5.2] - 2026-11-19
 
 ### Security
